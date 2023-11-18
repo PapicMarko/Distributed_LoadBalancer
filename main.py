@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import httpx
 import asyncio
 
@@ -11,8 +11,11 @@ def read_root():
 
 @app.get('/health-check')
 def health_check():
-    # Add any additional health check logic if needed
     return {'status': 'OK'}
+
+@app.get('/health-check')
+def health_check():
+    raise HTTPException(status_code=500, detail="Internal Server Error")
 
 if __name__ == '__main__':
     import uvicorn
