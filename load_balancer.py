@@ -27,6 +27,12 @@ class DynamicLoadBalancer:
             if s["server"] == server:
                 self.servers.remove(s)
 
+    def check_all_servers_health(self):
+        for server_info in self.servers:
+            server = server_info["server"]
+            is_healthy = self.check_server_health(server)
+            server_info["healthy"] = is_healthy
+
     def check_server_health(self, server):
         #Simulation of a health check, for example by attempting a connection
         
@@ -48,8 +54,6 @@ class DynamicLoadBalancer:
         if not available_servers:
             raise ValueError("No healthy servers available in the server pool.")
 
-        if not self.servers:
-            raise ValueError("No servers available in the server pool")
         
         server = available_servers[self.current_index]["server"]
         self.current_index = (self.current_index + 1) % len(available_servers)
@@ -64,7 +68,7 @@ class DynamicLoadBalancer:
                 is_healthy = self.check_server_health(server)
                 server_info["healthy"] = is_healthy
                 server_info["last_checked"] = current_time
-
+"""
 # Example usage (RoundRobin)
 servers = ["Server1", "Server2", "Server3", "Server4", "Server5"]
 load_balancer = RoundRobinLoadBalancer(servers)
@@ -73,12 +77,12 @@ load_balancer = RoundRobinLoadBalancer(servers)
 for _ in range(10):
     next_server = load_balancer.get_next_server()
     print(f"Request directed to: {next_server}")
-
-
+"""
+"""
 # Example usage (DynamicLoadBalancer)
 load_balancer = DynamicLoadBalancer()
 
-# Add servers dynamically
+
 load_balancer.add_server("Server1")
 load_balancer.add_server("Server2")
 load_balancer.add_server("Server3")
@@ -95,6 +99,7 @@ load_balancer.remove_server("Server2")
 next_server_after_removal = load_balancer.get_next_server()
 print(f"Request directed to: {next_server_after_removal}")
 
+"""
 
 # Example usage
 load_balancer = DynamicLoadBalancer(health_check_interval=5)
@@ -104,18 +109,26 @@ load_balancer.add_server("Server7")
 load_balancer.add_server("Server8")
 load_balancer.add_server("Server9")
 
+
+
+# Perform health check on all servers
+load_balancer.check_all_servers_health()
+
 # Get the next server for each request
 for _ in range(10):
     next_server = load_balancer.get_next_server()
     print(f"Request directed to: {next_server}")
 
+"""
 # Simulate a server becoming unhealthy
 unhealthy_server = "Server8"
 load_balancer.remove_server(unhealthy_server)
-
+"""
+"""
 # Wait for a health check interval
 time.sleep(6)
 
 # Get the next server after health check
 next_server_after_health_check = load_balancer.get_next_server()
 print(f"Request directed to: {next_server_after_health_check}")
+"""
