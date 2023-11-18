@@ -1,4 +1,5 @@
 import time
+import httpx
 
 
 class RoundRobinLoadBalancer:
@@ -28,8 +29,16 @@ class DynamicLoadBalancer:
 
     def check_server_health(self, server):
         #Simulation of a health check, for example by attempting a connection
-        #HEALTH CHECK LOGIC -- NEED TO ADD HERE
-        return True if server else False
+        
+        #Health check logic
+        url = f"http://{server}/health-check"
+        try:
+            with httpx.Client() as client:
+                response = client.get(url)
+                return response.status_code == 200
+        except Exception as e:
+            print(f"Health check failed for {server}: {e}")
+        return False
     
 
     def get_next_server(self):

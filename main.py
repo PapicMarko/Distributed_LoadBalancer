@@ -4,26 +4,18 @@ import asyncio
 
 app = FastAPI()
 
-async def make_async_request(url):
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-        return response.text
+@app.get('/')
+def read_root():
+    return {'message': 'Hello, World!'}
 
-async def main():
-    # Example URLs to make asynchronous requests
-    urls = ["https://example.com", "https://example.org", "https://example.net"]
 
-    # Use asyncio.gather to concurrently make asynchronous requests
-    responses = await asyncio.gather(*(make_async_request(url) for url in urls))
+@app.get('/health-check')
+def health_check():
+    # Add any additional health check logic if needed
+    return {'status': 'OK'}
 
-    # Process the responses as needed
-    for url, response_text in zip(urls, responses):
-        print(f"Response from {url}:\n{response_text}\n")
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host='127.0.0.1', port=8000)
 
-@app.get("/")
-async def root():
-    result = await make_async_request("https://example.com")
-    return {"message": result}
 
-# Run the asyncio event loop
-asyncio.run(main())
