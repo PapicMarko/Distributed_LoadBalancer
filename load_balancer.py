@@ -18,6 +18,8 @@ async def app_lifespan(app):
     # Startup logic
     async with httpx.AsyncClient() as client:
         app.state.http_client = client
+        # Start the health check loop
+        asyncio.create_task(app.state.load_balancer.check_server_health(client))
         yield
         # Improved Shutdown logic
         await app.state.load_balancer.shutdown()
@@ -46,10 +48,6 @@ class DynamicLoadBalancer:
                 is_healthy = await self._check_health(client, server)
                 server_info["healthy"] = is_healthy
                 server_info["last_checked"] = time.time()
-                if is_healthy:
-                    logging.info(f"Server {server} is healthy.")
-                else:
-                    logging.warning(f"Server {server} is unhealthy.")
             await asyncio.sleep(self.health_check_interval)
 
     async def _check_health(self, client, server):
@@ -62,13 +60,12 @@ class DynamicLoadBalancer:
             return False
 
     def get_next_server(self):
-        available_servers = [s for s in self.servers if s["healthy"]]
-        if not available_servers:
-            raise ValueError("No healthy servers available.")
-        # Round-robin selection
-        server = available_servers.pop(0)
-        available_servers.append(server)  # Re-adding the server to the end of the list for round-robin
-        return server
+        # Round-robin logic
+        self.servers.append(self.servers.pop(0))
+        for server in self.servers:
+            if server["healthy"]:
+                return server
+        raise ValueError("No healthy servers available.")
 
     async def shutdown(self):
         self.shutdown_event.set()
@@ -78,11 +75,9 @@ class WorkerRegistration(BaseModel):
     server: str
 
 
-# Create an instance of DynamicLoadBalancer
+# Create an instance of DynamicLoadBalancer with a health check interval of 10 seconds
 load_balancer = DynamicLoadBalancer(health_check_interval=HEALTH_CHECK_INTERVAL)
 app.state.load_balancer = load_balancer
-
-
 
 #POST REQUESTS
 
