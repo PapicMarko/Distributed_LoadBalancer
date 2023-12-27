@@ -14,7 +14,6 @@ logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(mes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    
     # Startup logic: Register with the load balancer
     async with httpx.AsyncClient() as client:
         try:
@@ -28,6 +27,10 @@ async def lifespan(app: FastAPI):
                 logging.error(f"Failed to register with the load balancer: Status code {response.status_code}")
         except Exception as e:
             logging.error(f"Failed to register with the load balancer: {e}")
+        yield  # Yield for the context manager
+
+    # Shutdown logic (if any)
+
 
 app = FastAPI(lifespan=lifespan)
 
