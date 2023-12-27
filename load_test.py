@@ -1,17 +1,9 @@
-from locust import task, HttpUser
-import logging
+from locust import HttpUser, task, between
 
 class MyUser(HttpUser):
-    # ...
+    wait_time = between(1, 3)  # Time between consecutive requests in seconds
 
     @task
-    def register_server(self):
-        payload = {"server": "worker1"}  # Provide the "server" parameter
-        headers = {"Content-Type": "application/json"}
-        
-        # Send the POST request with payload
-        response = self.client.post("/register", json=payload, headers=headers)
-        
-        # Log the payload and response
-        logging.info(f"Request Payload: {payload}")
-        logging.info(f"Response: {response.status_code} - {response.text}")
+    def get_next_server(self):
+        self.client.get("/next")
+

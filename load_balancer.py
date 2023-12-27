@@ -4,9 +4,14 @@ import time
 from fastapi import FastAPI, HTTPException
 import httpx
 from contextlib import asynccontextmanager
+from pydantic import BaseModel
+
+# Configurable Parameters
+HEALTH_CHECK_INTERVAL = 10  # seconds
+LOG_LEVEL = logging.INFO
 
 # Setting up basic logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
 
 @asynccontextmanager
 async def app_lifespan(app):
@@ -14,14 +19,16 @@ async def app_lifespan(app):
     async with httpx.AsyncClient() as client:
         app.state.http_client = client
         yield
-        # Shutdown logic (if any)
+        # Improved Shutdown logic
+        await app.state.load_balancer.shutdown()
 
 app = FastAPI(lifespan=app_lifespan)
 
 class DynamicLoadBalancer:
-    def __init__(self, health_check_interval=5):
+    def __init__(self, health_check_interval=HEALTH_CHECK_INTERVAL):
         self.servers = []
         self.health_check_interval = health_check_interval
+        self.shutdown_event = asyncio.Event()
 
     def register_server(self, server):
         if server not in [s['server'] for s in self.servers]:
@@ -33,11 +40,17 @@ class DynamicLoadBalancer:
         logging.info(f"Server {server} deregistered.")
 
     async def check_server_health(self, client):
-        for server_info in self.servers:
-            server = server_info["server"]
-            is_healthy = await self._check_health(client, server)
-            server_info["healthy"] = is_healthy
-            server_info["last_checked"] = time.time()
+        while not self.shutdown_event.is_set():
+            for server_info in self.servers:
+                server = server_info["server"]
+                is_healthy = await self._check_health(client, server)
+                server_info["healthy"] = is_healthy
+                server_info["last_checked"] = time.time()
+                if is_healthy:
+                    logging.info(f"Server {server} is healthy.")
+                else:
+                    logging.warning(f"Server {server} is unhealthy.")
+            await asyncio.sleep(self.health_check_interval)
 
     async def _check_health(self, client, server):
         url = f"http://{server}/health-check"
@@ -54,43 +67,59 @@ class DynamicLoadBalancer:
             raise ValueError("No healthy servers available.")
         # Round-robin selection
         server = available_servers.pop(0)
-        available_servers.append(server)
-        return server["server"]
+        available_servers.append(server)  # Re-adding the server to the end of the list for round-robin
+        return server
 
-load_balancer = DynamicLoadBalancer()
+    async def shutdown(self):
+        self.shutdown_event.set()
+        logging.info("Shutdown initiated for Load Balancer.")
 
+class WorkerRegistration(BaseModel):
+    server: str
+
+
+# Create an instance of DynamicLoadBalancer with a health check interval of 10 seconds
+app.state.load_balancer = DynamicLoadBalancer(health_check_interval=HEALTH_CHECK_INTERVAL)
+
+
+
+#POST REQUESTS
+
+"""
 @app.post("/register")
 def register_server(server: str):
-    load_balancer.register_server(server)
+    DynamicLoadBalancer.register_server(server)
     return {"status": "Server registered successfully"}
 
 @app.delete("/deregister")
 def deregister_server(server: str):
-    load_balancer.remove_server(server)
+    DynamicLoadBalancer.remove_server(server)
     return {"status": "Server deregistered successfully"}
 
 @app.get("/next")
 def get_next_server():
     try:
-        next_server = load_balancer.get_next_server()
+        next_server = DynamicLoadBalancer.get_next_server()
+        logging.info(f"Selected worker: {next_server}")
         return {"next_server": next_server}
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/list-workers")
 def list_workers():
-    registered_workers = [s["server"] for s in load_balancer.servers]
+    registered_workers = [s["server"] for s in DynamicLoadBalancer.servers]
     return {"registered_workers": registered_workers}
+"""
 
-async def periodic_health_check():
-    while True:
-        await load_balancer.check_server_health(app.state.http_client)
-        await asyncio.sleep(load_balancer.health_check_interval)
+
+# Endpoint for automatic worker registration
+@app.post("/register-worker")
+async def register_worker(worker: WorkerRegistration):
+    app.state.load_balancer.register_server(worker.server)
+    return {"message": f"Worker {worker.server} registered successfully."}
+
 
 if __name__ == "__main__":
     import uvicorn
-    # Check if the script is run as the main module
-    if asyncio.get_event_loop().is_running():
-        asyncio.create_task(periodic_health_check())
-    else:
-        uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
