@@ -1,85 +1,93 @@
-import time
-import httpx
 import logging
+import asyncio
+import time
+from fastapi import FastAPI, HTTPException
+import httpx
+from contextlib import asynccontextmanager
 
 # Setting up basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class RoundRobinLoadBalancer:
-    def __init__(self, servers):
-        self.servers = servers
-        self.current_index = 0
+@asynccontextmanager
+async def app_lifespan(app):
+    # Startup logic
+    async with httpx.AsyncClient() as client:
+        app.state.http_client = client
+        yield
+        # Shutdown logic (if any)
 
-    def get_next_server(self):
-        if not self.servers:
-            raise ValueError("No servers available in the server pool.")
-        server = self.servers[self.current_index]
-        self.current_index = (self.current_index + 1) % len(self.servers)
-        return server
-    
+app = FastAPI(lifespan=app_lifespan)
+
 class DynamicLoadBalancer:
     def __init__(self, health_check_interval=5):
         self.servers = []
-        self.current_index = 0
         self.health_check_interval = health_check_interval
 
-    def add_server(self, server):
-        self.servers.append({"server": server, "healthy": True, "last_checked": time.time()})
+    def register_server(self, server):
+        if server not in [s['server'] for s in self.servers]:
+            self.servers.append({"server": server, "healthy": True, "last_checked": time.time()})
+            logging.info(f"Server {server} registered.")
 
     def remove_server(self, server):
         self.servers = [s for s in self.servers if s["server"] != server]
+        logging.info(f"Server {server} deregistered.")
 
-    def check_all_servers_health(self):
+    async def check_server_health(self, client):
         for server_info in self.servers:
             server = server_info["server"]
-            is_healthy = self.check_server_health(server)
+            is_healthy = await self._check_health(client, server)
             server_info["healthy"] = is_healthy
+            server_info["last_checked"] = time.time()
 
-    def check_server_health(self, server):
+    async def _check_health(self, client, server):
         url = f"http://{server}/health-check"
         try:
-            with httpx.Client() as client:
-                response = client.get(url)
-                return response.status_code == 200
+            response = await client.get(url)
+            return response.status_code == 200
         except Exception as e:
             logging.error(f"Health check failed for {server}: {e}")
             return False
 
     def get_next_server(self):
-        self._perform_health_checks()
-
         available_servers = [s for s in self.servers if s["healthy"]]
         if not available_servers:
-            logging.warning("No healthy servers available in the server pool.")
-            raise ValueError("No healthy servers available in the server pool.")
+            raise ValueError("No healthy servers available.")
+        # Round-robin selection
+        server = available_servers.pop(0)
+        available_servers.append(server)
+        return server["server"]
 
-        server = available_servers[self.current_index]["server"]
-        self.current_index = (self.current_index + 1) % len(available_servers)
-        return server
-    
-    def _perform_health_checks(self):
-        current_time = time.time()
-        for server_info in self.servers:
-            if current_time - server_info["last_checked"] >= self.health_check_interval:
-                server = server_info["server"]
-                is_healthy = self.check_server_health(server)
-                server_info["healthy"] = is_healthy
-                server_info["last_checked"] = current_time
+load_balancer = DynamicLoadBalancer()
 
-# Example usage (commented out for production use)
-"""
-# RoundRobin
-servers = ["Server1", "Server2", "Server3"]
-load_balancer = RoundRobinLoadBalancer(servers)
-for _ in range(10):
-    next_server = load_balancer.get_next_server()
-    print(f"Request directed to: {next_server}")
+@app.post("/register")
+def register_server(server: str):
+    load_balancer.register_server(server)
+    return {"status": "Server registered successfully"}
 
-# DynamicLoadBalancer
-dynamic_load_balancer = DynamicLoadBalancer()
-dynamic_load_balancer.add_server("Server4")
-dynamic_load_balancer.add_server("Server5")
-for _ in range(10):
-    next_server = dynamic_load_balancer.get_next_server()
-    print(f"Request directed to: {next_server}")
-"""
+@app.delete("/deregister")
+def deregister_server(server: str):
+    load_balancer.remove_server(server)
+    return {"status": "Server deregistered successfully"}
+
+@app.get("/next")
+def get_next_server():
+    try:
+        next_server = load_balancer.get_next_server()
+        logging.info(f"Selected server: {next_server}")
+        return {"next_server": next_server}
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def periodic_health_check():
+    while True:
+        await load_balancer.check_server_health(app.state.http_client)
+        await asyncio.sleep(load_balancer.health_check_interval)
+
+if __name__ == "__main__":
+    import uvicorn
+    import asyncio
+    if asyncio.get_event_loop().is_running():
+        asyncio.create_task(periodic_health_check())
+    else:
+        uvicorn.run(app, host="127.0.0.1", port=8000)
