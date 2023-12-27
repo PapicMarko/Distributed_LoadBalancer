@@ -78,14 +78,15 @@ class WorkerRegistration(BaseModel):
     server: str
 
 
-# Create an instance of DynamicLoadBalancer with a health check interval of 10 seconds
-app.state.load_balancer = DynamicLoadBalancer(health_check_interval=HEALTH_CHECK_INTERVAL)
+# Create an instance of DynamicLoadBalancer
+load_balancer = DynamicLoadBalancer(health_check_interval=HEALTH_CHECK_INTERVAL)
+app.state.load_balancer = load_balancer
 
 
 
 #POST REQUESTS
 
-"""
+
 @app.post("/register")
 def register_server(server: str):
     DynamicLoadBalancer.register_server(server)
@@ -99,7 +100,7 @@ def deregister_server(server: str):
 @app.get("/next")
 def get_next_server():
     try:
-        next_server = DynamicLoadBalancer.get_next_server()
+        next_server = app.state.load_balancer.get_next_server()
         logging.info(f"Selected worker: {next_server}")
         return {"next_server": next_server}
     except ValueError as e:
@@ -110,7 +111,7 @@ def get_next_server():
 def list_workers():
     registered_workers = [s["server"] for s in DynamicLoadBalancer.servers]
     return {"registered_workers": registered_workers}
-"""
+
 
 
 # Endpoint for automatic worker registration
