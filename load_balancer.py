@@ -73,11 +73,14 @@ def deregister_server(server: str):
 def get_next_server():
     try:
         next_server = load_balancer.get_next_server()
-        logging.info(f"Selected server: {next_server}")
         return {"next_server": next_server}
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/list-workers")
+def list_workers():
+    registered_workers = [s["server"] for s in load_balancer.servers]
+    return {"registered_workers": registered_workers}
 
 async def periodic_health_check():
     while True:
@@ -86,7 +89,7 @@ async def periodic_health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    import asyncio
+    # Check if the script is run as the main module
     if asyncio.get_event_loop().is_running():
         asyncio.create_task(periodic_health_check())
     else:
