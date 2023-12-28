@@ -5,6 +5,9 @@ from fastapi import FastAPI, HTTPException
 import httpx
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
+import subprocess
+import os
+
 
 # Configurable Parameters
 HEALTH_CHECK_INTERVAL = 10  # seconds
@@ -18,10 +21,15 @@ async def app_lifespan(app):
     # Startup logic
     async with httpx.AsyncClient() as client:
         app.state.http_client = client
-        # Start the health check loop
-        asyncio.create_task(app.state.load_balancer.check_server_health(client))
+        # Start the health check and scaling loops
+        health_task = asyncio.create_task(app.state.load_balancer.check_server_health(client))
+        scaling_task = asyncio.create_task(app.state.load_balancer.scale_workers())
+        
         yield
-        # Improved Shutdown logic
+
+        # Shutdown logic
+        health_task.cancel()
+        scaling_task.cancel()
         await app.state.load_balancer.shutdown()
 
 app = FastAPI(lifespan=app_lifespan)
@@ -31,6 +39,40 @@ class DynamicLoadBalancer:
         self.servers = []
         self.health_check_interval = health_check_interval
         self.shutdown_event = asyncio.Event()
+        self.active_workers = {}
+        self.max_requests_per_worker = 10
+        self_max_workers = 5
+        self.worker_command = "python worker1.py"
+
+    async def scale_workers(self):
+        while not self.shutdown_event.is_set():
+            if self.should_scale_up():
+                await self.start_new_worker()
+            elif self.should_scale_down():
+                await self.stop_worker()
+            await asyncio.sleep(10)
+        
+
+    def should_scale_up(self):
+        #Logic to determine if scaling up is needed
+        total_requsts = sum(worker['requests'] for worker in self.servers) 
+        if len(self.servers) < self.max_workers and total_requsts / len(self.servers) > self.max_requests_per_worker:
+            return True
+        return False
+    
+    async def start_new_worker(self):
+        #Start a new worker process
+        if len(self.active_workers) < self.max_workers:
+            process = subprocess.Popen(self.worker_command, shell=True)
+            self.active_workers[process.pid] = process
+
+    async def stop_worker(self):
+        #Stop a worker process
+        if self.active_workers:
+            pid, process = self.active_workers.popitem()
+            process.terminate()
+
+
 
     def register_server(self, server):
         if server not in [s['server'] for s in self.servers]:
@@ -78,6 +120,8 @@ class WorkerRegistration(BaseModel):
 # Create an instance of DynamicLoadBalancer with a health check interval of 10 seconds
 load_balancer = DynamicLoadBalancer(health_check_interval=HEALTH_CHECK_INTERVAL)
 app.state.load_balancer = load_balancer
+
+
 
 #POST REQUESTS
 

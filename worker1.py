@@ -1,6 +1,6 @@
 import logging
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 import httpx
 from contextlib import asynccontextmanager
 
@@ -32,6 +32,16 @@ async def lifespan(app: FastAPI):
     # Shutdown logic (if any)
 
 app = FastAPI(lifespan=lifespan)
+
+active_requests = 0
+
+@app.middleware("http")
+async def count_request(requests: Request, call_next):
+    global active_requests
+    active_requests += 1
+    response = await call_next(requests)
+    active_requests -= 1
+    return response
 
 @app.get("/")
 async def worker1_endpoint():
