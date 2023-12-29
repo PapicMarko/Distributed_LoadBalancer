@@ -11,7 +11,7 @@ from fastapi.responses import PlainTextResponse
 from starlette.requests import Request
 
 
-
+load_balancer_lock = asyncio.Lock()
 
 # Configurable Parameters
 HEALTH_CHECK_INTERVAL = 2  # seconds
@@ -23,6 +23,7 @@ logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(mes
 class Worker(BaseModel):
     server: str
     healthy: bool = True
+    active_requests: int = 0
 
 app = FastAPI()
 active_workers = {}
@@ -53,7 +54,13 @@ class DynamicLoadBalancer:
         total_requests = sum(worker.active_requests for worker in self.servers)
         average_requests = total_requests / len(self.servers) if self.servers else 0
         logging.info(f"Scale up check: total {total_requests}, average {average_requests}")
-        return len(self.servers) < self.max_workers and average_requests > self.max_requests_per_worker
+    
+        if len(self.servers) < self.max_workers and average_requests > self.max_requests_per_worker:
+             logging.info("Scaling up...")
+             return True
+    
+        return False
+
 
     def should_scale_down(self):
         # Implement your logic to determine if scaling down is needed
@@ -79,7 +86,8 @@ class DynamicLoadBalancer:
             logging.info(f"Stopped worker with PID: {pid}")
 
     def register_server(self, server: str):
-        self.servers.append(Worker(server=server))
+        self.servers.append(Worker(server=server, active_requests=0))
+
 
     def remove_server(self, server: str):
         self.servers = [s for s in self.servers if s.server != server]
@@ -97,11 +105,12 @@ class DynamicLoadBalancer:
 
     async def check_server_health(self, client):
         while not self.shutdown_event.is_set():
-            for server_info in self.servers:
-                server = server_info["server"]
-                is_healthy = await self._check_health(client, server)
-                server_info["healthy"] = is_healthy
-                server_info["last_checked"] = time.time()
+            async with load_balancer_lock:
+                for server_info in self.servers:
+                 server = server_info["server"]
+                 is_healthy = await self._check_health(client, server)
+                 server_info["healthy"] = is_healthy
+                 server_info["last_checked"] = time.time()
             await asyncio.sleep(self.health_check_interval)
 
     async def _check_health(self, client: httpx.AsyncClient, server: Worker):
@@ -153,17 +162,19 @@ async def register_worker(worker: Worker):
 
 @app.post("/report-load")
 async def report_load(report: LoadReport):
-    logging.info(f"Received load report: {report.json()}")
+    logging.info(f"Received load report: {report.model_dump_json()}")
     found = False
     for worker in load_balancer.servers:
-        if worker.server == report.server:  # Changed from 'worker_id'
-            worker.active_requests = report.load  # Changed from 'active_requests'
+        if worker.server == report.server:
+            worker.active_requests = report.load
             logging.info(f"Load updated for worker {report.server}: {report.load} active requests")
             found = True
             break
     if not found:
         logging.warning(f"Worker {report.server} not found in registered servers")
     return {"message": "Load updated"}
+
+
 
 @app.get("/")
 async def root():
