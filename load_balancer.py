@@ -8,9 +8,8 @@ from pydantic import BaseModel
 import subprocess
 import os
 
-
 # Configurable Parameters
-HEALTH_CHECK_INTERVAL = 10  # seconds
+HEALTH_CHECK_INTERVAL = 2  # seconds
 LOG_LEVEL = logging.INFO
 
 # Setting up basic logging
@@ -24,9 +23,7 @@ async def app_lifespan(app):
         # Start the health check and scaling loops
         health_task = asyncio.create_task(app.state.load_balancer.check_server_health(client))
         scaling_task = asyncio.create_task(app.state.load_balancer.scale_workers())
-        
         yield
-
         # Shutdown logic
         health_task.cancel()
         scaling_task.cancel()
@@ -41,8 +38,8 @@ class DynamicLoadBalancer:
         self.shutdown_event = asyncio.Event()
         self.active_workers = {}
         self.max_requests_per_worker = 10
-        self_max_workers = 5
-        self.worker_command = "python worker1.py"
+        self.max_workers = 5
+        self.worker_command_template = "python worker.py {}"  # Command template
 
     async def scale_workers(self):
         while not self.shutdown_event.is_set():
@@ -51,26 +48,33 @@ class DynamicLoadBalancer:
             elif self.should_scale_down():
                 await self.stop_worker()
             await asyncio.sleep(10)
-        
 
     def should_scale_up(self):
-        #Logic to determine if scaling up is needed
-        total_requsts = sum(worker['requests'] for worker in self.servers) 
-        if len(self.servers) < self.max_workers and total_requsts / len(self.servers) > self.max_requests_per_worker:
+        total_requests = sum(worker['requests'] for worker in self.servers)
+        if len(self.servers) < self.max_workers and total_requests / len(self.servers) > self.max_requests_per_worker:
+            logging.info(f"Scaling up condition met. Total requests: {total_requests}, Servers: {len(self.servers)}")
             return True
+        logging.info(f"Scaling up condition not met. Total requests: {total_requests}, Servers: {len(self.servers)}")
         return False
-    
+
     async def start_new_worker(self):
-        #Start a new worker process
         if len(self.active_workers) < self.max_workers:
-            process = subprocess.Popen(self.worker_command, shell=True)
-            self.active_workers[process.pid] = process
+            next_port = 8001 + len(self.active_workers) # Dynamically assign the next port
+            worker_command = self.worker_command_template.format(next_port)
+            try:
+                logging.info(f"Attempting to start new worker: {worker_command}")
+                process = subprocess.Popen(worker_command, shell=True)
+                self.active_workers[process.pid] = process
+                logging.info(f"Started new worker on port {next_port} with PID: {process.pid}")
+            except Exception as e:
+                logging.error(f"Failed to start new worker on port {next_port}: {e}")
 
     async def stop_worker(self):
-        #Stop a worker process
         if self.active_workers:
             pid, process = self.active_workers.popitem()
             process.terminate()
+            logging.info(f"Stopped worker with PID: {pid}")
+
 
 
 
