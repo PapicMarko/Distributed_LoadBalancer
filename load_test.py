@@ -6,4 +6,4 @@ class LoadTester(HttpUser):
     @task
     def request_next_worker(self):
         # Sending a GET request to the load balancer's /next endpoint
-        self.client.get("http://localhost:8000/next")
+        self.client.get("http://localhost:8000")

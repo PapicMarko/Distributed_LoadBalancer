@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request
 import httpx
 from contextlib import asynccontextmanager
 import sys
+import asyncio
 from asyncio import Lock
 
 # Configuration Parameters
@@ -18,23 +19,31 @@ app = FastAPI()
 active_requests = 0
 lock = Lock()
 
-async def report_load_to_balancer(load: int):
-    async with httpx.AsyncClient() as client:
+
+
+async def report_load_to_balancer():
+    global active_requests
+    while True:
+        async with lock:
+            current_load = active_requests
         try:
-            await client.post(f"http://{LOAD_BALANCER_ADDRESS}/report-load", json={"server": WORKER_ADDRESS, "load": load})
+            async with httpx.AsyncClient() as client:
+                response = await client.post(f"http://{LOAD_BALANCER_ADDRESS}/report-load", 
+                                             json={"server": WORKER_ADDRESS, "load": current_load})
+                logging.info(f"Reported load {current_load} to load balancer, response status: {response.status_code}")
         except Exception as e:
             logging.error(f"Error reporting load to load balancer: {e}")
+        await asyncio.sleep(10)  # Report every 10 seconds, adjust as needed
+
 
 @app.middleware("http")
 async def count_request(request: Request, call_next):
     global active_requests
     async with lock:
         active_requests += 1
-        logging.info(f"Active requests increased: {active_requests}")
     response = await call_next(request)
     async with lock:
         active_requests -= 1
-        logging.info(f"Active requests decreased: {active_requests}")
     return response
 
 @app.get("/health-check")
@@ -50,7 +59,14 @@ async def startup_event():
         except Exception as e:
             logging.error(f"Failed to register with the load balancer: {e}")
 
-app.add_event_handler("startup", startup_event)
+async def app_startup():
+    asyncio.create_task(report_load_to_balancer())
+
+async def app_shutdown():
+    # Add any cleanup logic here
+    pass
+
+app.add_event_handler("startup", app_startup)
 app.add_event_handler("shutdown", lambda: logging.info("Worker shutdown"))
 
 if __name__ == "__main__":

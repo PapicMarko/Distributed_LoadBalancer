@@ -1,11 +1,17 @@
 import logging
 import asyncio
 import time
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 import httpx
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 import subprocess
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import PlainTextResponse
+from starlette.requests import Request
+
+
+
 
 # Configurable Parameters
 HEALTH_CHECK_INTERVAL = 2  # seconds
@@ -17,8 +23,13 @@ logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(mes
 class Worker(BaseModel):
     server: str
     healthy: bool = True
-    last_checked: float = 0
-    active_requests: int = 0
+
+app = FastAPI()
+active_workers = {}
+
+class LoadReport(BaseModel):
+    server:str
+    load:int
 
 class DynamicLoadBalancer:
     def __init__(self, health_check_interval=HEALTH_CHECK_INTERVAL):
@@ -112,10 +123,12 @@ class DynamicLoadBalancer:
         self.shutdown_event.set()
         logging.info("Shutdown initiated for Load Balancer.")
 
+load_balancer = DynamicLoadBalancer()
+
 @asynccontextmanager
 async def app_lifespan(app: FastAPI):
     app.state.http_client = httpx.AsyncClient()
-    app.state.load_balancer = DynamicLoadBalancer()
+    app.state.load_balancer = load_balancer  # Use the global instance
     health_task = asyncio.create_task(app.state.load_balancer.check_server_health(app.state.http_client))
     scaling_task = asyncio.create_task(app.state.load_balancer.scale_workers())
     yield
@@ -126,20 +139,35 @@ async def app_lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=app_lifespan)
 
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logging.error(f"Validation error: {exc.body}")
+    return PlainTextResponse(str(exc), status_code=422)
+
+
 @app.post("/register-worker")
 async def register_worker(worker: Worker):
     app.state.load_balancer.register_server(worker.server)
     return {"message": f"Worker {worker.server} registered successfully."}
 
 @app.post("/report-load")
-async def report_load(data: dict):
-    server = data.get("server")
-    load = data.get("load")
-    for worker in app.state.load_balancer.servers:
-        if worker.server == server:
-            worker.active_requests = load
+async def report_load(report: LoadReport):
+    logging.info(f"Received load report: {report.json()}")
+    found = False
+    for worker in load_balancer.servers:
+        if worker.server == report.server:  # Changed from 'worker_id'
+            worker.active_requests = report.load  # Changed from 'active_requests'
+            logging.info(f"Load updated for worker {report.server}: {report.load} active requests")
+            found = True
             break
-    logging.info(f"Load reported for {server}: {load}")
+    if not found:
+        logging.warning(f"Worker {report.server} not found in registered servers")
+    return {"message": "Load updated"}
+
+@app.get("/")
+async def root():
+    return {"message": "This is the load balancer!"}
 
 @app.get("/next")
 def get_next_server():
@@ -157,3 +185,4 @@ def list_workers():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
+
