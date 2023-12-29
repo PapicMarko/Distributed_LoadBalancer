@@ -2,12 +2,8 @@ import logging
 import uvicorn
 from fastapi import FastAPI, Request
 import httpx
-from contextlib import asynccontextmanager
 import sys
 import asyncio
-from asyncio import Lock
-
-worker_lock = asyncio.Lock()
 
 # Configuration Parameters
 LOAD_BALANCER_ADDRESS = "localhost:8000"
@@ -15,44 +11,44 @@ WORKER_PORT = sys.argv[1] if len(sys.argv) > 1 else "8001"
 WORKER_ADDRESS = f"localhost:{WORKER_PORT}"
 LOG_LEVEL = logging.INFO
 
+# Setting up basic logging
 logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = FastAPI()
 active_requests = 0
-lock = Lock()
+worker_lock = asyncio.Lock()  # Lock for thread-safe operation on active_requests
 
-
-
-async def report_load_to_balancer():
-    global active_requests
-    while True:
-        async with worker_lock:
-            current_load = active_requests
-        logging.info(f"Preparing to report load: {current_load}")
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"http://{LOAD_BALANCER_ADDRESS}/report-load",
-                    json={"server": WORKER_ADDRESS, "load": current_load},
-                )
-                response.raise_for_status()  # Raise an exception for non-2xx status codes
-                logging.info(
-                    f"Reported load {current_load} to load balancer, response status: {response.status_code}"
-                )
-        except Exception as e:
-            logging.error(f"Error reporting load to load balancer: {e}")
-        await asyncio.sleep(10)
-
-
+async def report_current_load():
+    async with worker_lock:
+        current_load = active_requests
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                f"http://{LOAD_BALANCER_ADDRESS}/report-load",
+                json={"server": WORKER_ADDRESS, "load": current_load},
+            )
+    except Exception as e:
+        logging.error(f"Error reporting load to load balancer: {e}")
 
 @app.middleware("http")
 async def count_request(request: Request, call_next):
     global active_requests
     async with worker_lock:
         active_requests += 1
+        logging.info(f"Request received. Active requests: {active_requests}")
+    
+    # Report load at the start of handling a request
+    await report_current_load()
+    
     response = await call_next(request)
+    
     async with worker_lock:
         active_requests -= 1
+        logging.info(f"Request completed. Active requests: {active_requests}")
+    
+    # Report load at the end of handling a request
+    await report_current_load()
+    
     return response
 
 @app.get("/health-check")
@@ -64,27 +60,14 @@ async def startup_event():
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(f"http://{LOAD_BALANCER_ADDRESS}/register-worker", json={"server": WORKER_ADDRESS})
-            logging.info(f"Worker registration response: {response.status_code}")
+            if response.status_code == 200:
+                logging.info(f"Successfully registered with load balancer at {LOAD_BALANCER_ADDRESS}")
+            else:
+                logging.error(f"Failed to register with load balancer: Status code {response.status_code}")
         except Exception as e:
-            logging.error(f"Failed to register with the load balancer: {e}")
-
-async def app_startup():
-    asyncio.create_task(report_load_to_balancer())
-
-async def app_shutdown():
-    # Cleanup logic
-    pass
-
-async def startup_event():
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(f"http://{LOAD_BALANCER_ADDRESS}/register-worker", json={"server": WORKER_PORT})
-            logging.info(f"Worker registration response: {response.status_code}")
-        except Exception as e:
-            logging.error(f"Failed to register with the load balancer: {e}")
+            logging.error(f"Exception occurred while registering with load balancer: {e}")
 
 app.add_event_handler("startup", startup_event)
-app.add_event_handler("shutdown", lambda: logging.info("Worker shutdown"))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=int(WORKER_PORT))

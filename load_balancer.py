@@ -1,21 +1,16 @@
 import logging
 import asyncio
 import time
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, Request
 import httpx
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 import subprocess
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
-from starlette.requests import Request
-
-
-
-load_balancer_lock = asyncio.Lock()
 
 # Configurable Parameters
-HEALTH_CHECK_INTERVAL = 2  # seconds
+HEALTH_CHECK_INTERVAL = 5  # seconds
 LOG_LEVEL = logging.INFO
 
 # Setting up basic logging
@@ -26,108 +21,81 @@ class Worker(BaseModel):
     healthy: bool = True
     active_requests: int = 0
 
-app = FastAPI()
-active_workers = {}
-
 class LoadReport(BaseModel):
-    server:str
-    load:int
+    server: str
+    load: int
 
 class DynamicLoadBalancer:
     def __init__(self, health_check_interval=HEALTH_CHECK_INTERVAL):
         self.servers = []
         self.health_check_interval = health_check_interval
         self.shutdown_event = asyncio.Event()
-        self.active_workers = {}
         self.max_requests_per_worker = 10
         self.max_workers = 5
-        self.worker_command_template = "python worker.py {}"
+        self.current_worker_index = -1  # For round-robin
+        self.active_workers = {}  # Track active workers
+
+    def get_next_server(self):
+        if not self.servers:
+            raise ValueError("No registered workers")
+        self.current_worker_index = (self.current_worker_index + 1) % len(self.servers)
+        return self.servers[self.current_worker_index]
+
+    async def start_new_worker(self):
+        new_worker_port = self.get_next_available_port()
+        new_worker_address = f"localhost:{new_worker_port}"
+        subprocess.Popen(["python", "worker.py", str(new_worker_port)])
+        self.register_server(new_worker_address)
+        logging.info(f"New worker started at {new_worker_address}")
+
+    def get_next_available_port(self):
+        existing_ports = [int(worker.server.split(':')[1]) for worker in self.servers]
+        return max(existing_ports) + 1 if existing_ports else 8001
+
+    def register_server(self, server: str):
+        self.servers.append(Worker(server=server, active_requests=0))
+
+    def remove_server(self, server: str):
+        self.servers = [s for s in self.servers if s.server != server]
+
+    def should_scale_up(self):
+        total_requests = sum(worker.active_requests for worker in self.servers)
+        if total_requests > self.max_requests_per_worker * len(self.servers):
+            logging.info("Scaling up due to high load...")
+            return True
+        return False
+
+    async def perform_health_checks(self):
+        while not self.shutdown_event.is_set():
+            for server in self.servers:
+                response = await self.check_server_health(server)
+                if response:
+                    logging.info(f"Health check for {server.server}: Healthy")
+                else:
+                    logging.info(f"Health check for {server.server}: Unhealthy")
+            await asyncio.sleep(self.health_check_interval)
 
     async def scale_workers(self):
         while not self.shutdown_event.is_set():
             if self.should_scale_up():
                 await self.start_new_worker()
-            elif self.should_scale_down():
-                await self.stop_worker()
             await asyncio.sleep(self.health_check_interval)
 
-    def should_scale_up(self):
-        total_requests = sum(worker.active_requests for worker in self.servers)
-        average_requests = total_requests / len(self.servers) if self.servers else 0
-        logging.info(f"Scale up check: total {total_requests}, average {average_requests}")
-    
-        if len(self.servers) < self.max_workers and average_requests > self.max_requests_per_worker:
-             logging.info("Scaling up...")
-             return True
-    
-        return False
-
-
-    def should_scale_down(self):
-        # logic to determine if scaling down is needed
-        # For example, if the load is consistently low for a certain period
-        return False
-
-    async def start_new_worker(self):
-        if len(self.active_workers) < self.max_workers:
-            next_port = 8001 + len(self.active_workers)
-            worker_command = self.worker_command_template.format(next_port)
+    async def check_server_health(self, server):
+        async with httpx.AsyncClient() as client:
+            url = f"http://{server.server}/health-check"
             try:
-                logging.info(f"Attempting to start new worker: {worker_command}")
-                process = subprocess.Popen(worker_command, shell=True)
-                self.active_workers[process.pid] = process
-                logging.info(f"Started new worker on port {next_port} with PID: {process.pid}")
+                response = await client.get(url)
+                if response.status_code == 200:
+                    data = response.json()
+                    server.healthy = data["status"] == "OK"
+                    server.active_requests = data.get("active_requests", 0)
+                    logging.info(f"Health check for {server.server}: {server.active_requests} active requests")
+                else:
+                    server.healthy = False
             except Exception as e:
-                logging.error(f"Failed to start new worker on port {next_port}: {e}")
-
-    async def stop_worker(self):
-        if self.active_workers:
-            pid, process = self.active_workers.popitem()
-            process.terminate()
-            logging.info(f"Stopped worker with PID: {pid}")
-
-    def register_server(self, server: str):
-        self.servers.append(Worker(server=server, active_requests=0))
-
-
-    def remove_server(self, server: str):
-        self.servers = [s for s in self.servers if s.server != server]
-
-    def get_next_server(self):
-        # Implement round-robin logic to select the next server
-        healthy_servers = [server for server in self.servers if server.healthy]
-        if not healthy_servers:
-            raise ValueError("No healthy servers available.")
-
-        # Move the first server to the end of the list to rotate them
-        selected_server = healthy_servers.pop(0)
-        self.servers.append(selected_server)
-        return selected_server
-
-    async def check_server_health(self, client):
-        while not self.shutdown_event.is_set():
-            async with load_balancer_lock:
-                for server_info in self.servers:
-                 server = server_info["server"]
-                 is_healthy = await self._check_health(client, server)
-                 server_info["healthy"] = is_healthy
-                 server_info["last_checked"] = time.time()
-            await asyncio.sleep(self.health_check_interval)
-
-    async def _check_health(self, client: httpx.AsyncClient, server: Worker):
-        url = f"http://{server.server}/health-check"
-        try:
-            response = await client.get(url)
-            if response.status_code == 200:
-                data = response.json()
-                server.healthy = data["status"] == "OK"
-                server.active_requests = data.get("active_requests", 0)
-                logging.info(f"Health check for {server.server}: {server.active_requests} active requests")
-            else:
+                logging.error(f"Health check failed for {server.server}: {e}")
                 server.healthy = False
-        except Exception as e:
-            logging.error(f"Health check failed for {server.server}: {e}")
-            server.healthy = False
 
     async def shutdown(self):
         self.shutdown_event.set()
@@ -156,10 +124,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return PlainTextResponse(str(exc), status_code=422)
 
 
+
 @app.post("/register-worker")
 async def register_worker(worker: Worker):
     app.state.load_balancer.register_server(worker.server)
-    return {"message": f"Worker {worker.server} registered successfully."}
+    logging.info(f"Worker {worker.server} connected to load balancer.")
+    return {"message": f"Worker {worker.server} registered successfully."}    
 
 @app.post("/report-load")
 async def report_load(report: LoadReport):
