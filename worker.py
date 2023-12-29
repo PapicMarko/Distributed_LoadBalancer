@@ -72,7 +72,7 @@ async def app_startup():
     asyncio.create_task(report_load_to_balancer())
 
 async def app_shutdown():
-    # Add any cleanup logic here
+    # Cleanup logic
     pass
 
 async def startup_event():

@@ -11,6 +11,7 @@ from fastapi.responses import PlainTextResponse
 from starlette.requests import Request
 
 
+
 load_balancer_lock = asyncio.Lock()
 
 # Configurable Parameters
@@ -63,7 +64,7 @@ class DynamicLoadBalancer:
 
 
     def should_scale_down(self):
-        # Implement your logic to determine if scaling down is needed
+        # logic to determine if scaling down is needed
         # For example, if the load is consistently low for a certain period
         return False
 
