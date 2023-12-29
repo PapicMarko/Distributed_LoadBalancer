@@ -4,15 +4,17 @@ from fastapi import FastAPI, Request
 import httpx
 import sys
 import asyncio
+import os
 
 # Configuration Parameters
 LOAD_BALANCER_ADDRESS = "localhost:8000"
 WORKER_PORT = sys.argv[1] if len(sys.argv) > 1 else "8001"
 WORKER_ADDRESS = f"localhost:{WORKER_PORT}"
 LOG_LEVEL = logging.INFO
+LOG_FILE = f"worker_{WORKER_PORT}.log"
 
 # Setting up basic logging
-logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = FastAPI()
 active_requests = 0

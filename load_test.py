@@ -10,4 +10,4 @@ class LoadTester(HttpUser):
     @task(1)
     def request_other_endpoint(self):
         # Replace with other endpoints as needed
-        self.client.get("http://localhost:8001/health-check")
+        self.client.get("http://localhost:8002/health-check")

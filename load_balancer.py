@@ -8,6 +8,7 @@ from pydantic import BaseModel
 import subprocess
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
+import os
 
 # Configurable Parameters
 HEALTH_CHECK_INTERVAL = 5  # seconds
