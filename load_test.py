@@ -6,7 +6,7 @@ class LoadTester(HttpUser):
     @task(5)
     def request_through_load_balancer(self):
         # Targeting the load balancer to test round-robin distribution
-        self.client.get("http://localhost:8000/")
+        self.client.get("http://localhost:8000/test")
 
     # Uncomment and modify these tasks if you want to target specific endpoints or workers directly
     """
