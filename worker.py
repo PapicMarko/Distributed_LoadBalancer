@@ -61,6 +61,10 @@ def worker_info():
     logging.info(f"This is the worker {WORKER_ADDRESS}")
     return {"status": "OK", "active_requests": active_requests}
 
+@app.get("/test")
+def test_endpoint():
+    return {"message": "Test endpoint in worker reached successfully."}
+
 async def startup_event():
     async with httpx.AsyncClient() as client:
         try:

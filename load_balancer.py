@@ -173,16 +173,15 @@ def list_workers():
 
 
 @app.route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
-async def forward_request(path: str, request: Request):
-    try:
-        worker = load_balancer.get_next_server()
-    except ValueError as e:
-        # Handle the case where no healthy workers are available
-        return Response(content=str(e), status_code=503)
 
+@app.route("/test", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
+async def test_endpoint(request: Request):
+    return await forward_request("test", request)
+
+async def forward_request(path: str, request: Request):
+    worker = load_balancer.get_next_server()
     url = f"http://{worker.server}/{path}"
 
-    # Forwarding the entire request to the worker
     async with httpx.AsyncClient() as client:
         response = await client.request(
             method=request.method,
@@ -191,9 +190,7 @@ async def forward_request(path: str, request: Request):
             data=await request.body()
         )
 
-    # Returning the worker's response to the original client
     return Response(content=response.content, status_code=response.status_code, headers=dict(response.headers))
-
 
 
 
