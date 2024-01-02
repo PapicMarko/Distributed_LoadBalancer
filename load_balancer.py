@@ -1,7 +1,7 @@
 import logging
 import asyncio
 import time
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 import httpx
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
@@ -37,9 +37,13 @@ class DynamicLoadBalancer:
         self.active_workers = {}  # Track active workers
 
     def get_next_server(self):
+        healthy_servers = [server for server in self.servers if server.healthy]
+        if not healthy_servers:
+            raise ValueError("No healthy servers available.")
         if not self.servers:
             raise ValueError("No registered workers")
-        self.current_worker_index = (self.current_worker_index + 1) % len(self.servers)
+        self.current_worker_index = (self.current_worker_index + 1) % len(healthy_servers)
+        return healthy_servers[self.current_worker_index]
         return self.servers[self.current_worker_index]
 
     async def start_new_worker(self):
@@ -54,6 +58,8 @@ class DynamicLoadBalancer:
         return max(existing_ports) + 1 if existing_ports else 8001
 
     def register_server(self, server: str):
+        if server in [worker.server for worker in self.servers]:
+            return  # Skip registration if already registered
         self.servers.append(Worker(server=server, active_requests=0))
 
     def remove_server(self, server: str):
@@ -165,7 +171,32 @@ def list_workers():
     registered_workers = [s.server for s in app.state.load_balancer.servers]
     return {"registered_workers": registered_workers}
 
+
+@app.route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
+async def forward_request(path: str, request: Request):
+    try:
+        worker = load_balancer.get_next_server()
+    except ValueError as e:
+        # Handle the case where no healthy workers are available
+        return Response(content=str(e), status_code=503)
+
+    url = f"http://{worker.server}/{path}"
+
+    # Forwarding the entire request to the worker
+    async with httpx.AsyncClient() as client:
+        response = await client.request(
+            method=request.method,
+            url=url,
+            headers=request.headers,
+            data=await request.body()
+        )
+
+    # Returning the worker's response to the original client
+    return Response(content=response.content, status_code=response.status_code, headers=dict(response.headers))
+
+
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
-

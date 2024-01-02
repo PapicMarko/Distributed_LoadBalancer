@@ -56,6 +56,11 @@ def health_check():
     logging.info(f"Health check: {active_requests} active requests")
     return {"status": "OK", "active_requests": active_requests}
 
+@app.get("/")
+def worker_info():
+    logging.info(f"This is the worker {WORKER_ADDRESS}")
+    return {"status": "OK", "active_requests": active_requests}
+
 async def startup_event():
     async with httpx.AsyncClient() as client:
         try:

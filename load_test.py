@@ -4,10 +4,19 @@ class LoadTester(HttpUser):
     wait_time = between(1, 2)  # Random wait time between requests from 1 to 2 seconds
 
     @task(5)
-    def request_next_worker(self):
-        self.client.get("http://localhost:8000/next")
+    def request_through_load_balancer(self):
+        # Targeting the load balancer to test round-robin distribution
+        self.client.get("http://localhost:8000/")
+
+    # Uncomment and modify these tasks if you want to target specific endpoints or workers directly
+    """
+    @task(1)
+    def request_specific_endpoint(self):
+        # Replace with specific endpoints as needed
+        self.client.get("http://localhost:8000/some-specific-endpoint")
 
     @task(1)
-    def request_other_endpoint(self):
-        # Replace with other endpoints as needed
-        self.client.get("http://localhost:8002/health-check")
+    def request_another_specific_endpoint(self):
+        # Replace with other specific endpoints as needed
+        self.client.get("http://localhost:8000/another-specific-endpoint")
+    """
