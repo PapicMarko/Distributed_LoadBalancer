@@ -51,7 +51,7 @@ async def count_request(request: Request, call_next):
     
     return response
 
-@app.get("/health-check")
+@app.get("/worker-health")
 def health_check():
     logging.info(f"Health check: {active_requests} active requests")
     return {"status": "OK", "active_requests": active_requests}

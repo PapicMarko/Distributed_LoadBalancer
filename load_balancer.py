@@ -158,6 +158,23 @@ async def report_load(report: LoadReport):
 async def root():
     return {"message": "This is the load balancer!"}
 
+@app.get("/load-balancer-health")
+def load_balancer_health():
+    worker_statuses = []
+    for worker in load_balancer.servers:
+        status = "healthy" if worker.healthy else "unhealthy"
+        worker_statuses.append(f"  {{'worker_address': '{worker.server}', 'status': '{status}'}}")
+    formatted_response = "\n".join([
+        "{",
+        "  'status': 'OK',",
+        "  'load_balancer_message': 'Load Balancer is operational.',",
+        "  'workers': [",
+        ",\n".join(worker_statuses),
+        "  ]",
+        "}"
+    ])
+    return Response(content=formatted_response, media_type="application/json")
+
 @app.get("/next")
 def get_next_server():
     try:
@@ -180,7 +197,7 @@ async def test_endpoint(request: Request):
 
 async def forward_request(path: str, request: Request):
     worker = load_balancer.get_next_server()
-    url = f"http://{worker.server}/{path}"
+    url = f"http://{worker.server}" + request.url.path
 
     async with httpx.AsyncClient() as client:
         response = await client.request(
