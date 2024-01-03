@@ -4,12 +4,15 @@ from fastapi import FastAPI, Request
 import httpx
 import sys
 import asyncio
+from datetime import datetime, timedelta
 
 # Configuration Parameters
 LOAD_BALANCER_ADDRESS = "localhost:8000"
 WORKER_PORT = sys.argv[1] if len(sys.argv) > 1 else "8001"
 WORKER_ADDRESS = f"localhost:{WORKER_PORT}"
 LOG_LEVEL = logging.INFO
+REPORT_TIMEOUT = 5.0  # Timeout in seconds for reporting load
+REPORT_INTERVAL = timedelta(seconds=5)  # Interval for reporting load, adjust as needed
 
 # Setting up basic logging
 logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -17,12 +20,14 @@ logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(mes
 app = FastAPI()
 active_requests = 0
 worker_lock = asyncio.Lock()  # Lock for thread-safe operation on active_requests
+last_report_time = datetime.now()  # Track the last time the load was reported
 
 async def report_current_load():
     async with worker_lock:
         current_load = active_requests
+
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=REPORT_TIMEOUT) as client:
             await client.post(
                 f"http://{LOAD_BALANCER_ADDRESS}/report-load",
                 json={"server": WORKER_ADDRESS, "load": current_load},
@@ -32,23 +37,24 @@ async def report_current_load():
 
 @app.middleware("http")
 async def count_request(request: Request, call_next):
-    global active_requests
+    global active_requests, last_report_time
+    current_time = datetime.now()
+
     async with worker_lock:
         active_requests += 1
         logging.info(f"Request received. Active requests: {active_requests}")
-    
-    # Report load at the start of handling a request
-    await report_current_load()
-    
+
     response = await call_next(request)
-    
+
     async with worker_lock:
         active_requests -= 1
         logging.info(f"Request completed. Active requests: {active_requests}")
-    
-    # Report load at the end of handling a request
-    await report_current_load()
-    
+
+    # Report load if the interval has elapsed
+    if current_time - last_report_time > REPORT_INTERVAL:
+        await report_current_load()
+        last_report_time = current_time
+
     return response
 
 @app.get("/worker-health")

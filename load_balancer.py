@@ -11,7 +11,7 @@ from fastapi.responses import PlainTextResponse
 import os
 
 # Configurable Parameters
-HEALTH_CHECK_INTERVAL = 5  # seconds
+HEALTH_CHECK_INTERVAL = 10  # seconds
 LOG_LEVEL = logging.INFO
 
 # Setting up basic logging
@@ -89,20 +89,24 @@ class DynamicLoadBalancer:
             await asyncio.sleep(self.health_check_interval)
 
     async def check_server_health(self, server):
-        async with httpx.AsyncClient() as client:
-            url = f"http://{server.server}/health-check"
-            try:
+        try:
+            async with httpx.AsyncClient() as client:
+                url = f"http://{server.server}/worker-health"
                 response = await client.get(url)
                 if response.status_code == 200:
                     data = response.json()
                     server.healthy = data["status"] == "OK"
                     server.active_requests = data.get("active_requests", 0)
-                    logging.info(f"Health check for {server.server}: {server.active_requests} active requests")
+                    health_status = 'Healthy' if server.healthy else 'Unhealthy'
+                    logging.info(f"Health check for {server.server}: {server.active_requests} active requests - {health_status}")
                 else:
                     server.healthy = False
-            except Exception as e:
-                logging.error(f"Health check failed for {server.server}: {e}")
-                server.healthy = False
+                    logging.info(f"Health check for {server.server}: Response status code {response.status_code} - Unhealthy")
+        except Exception as e:
+            logging.error(f"Health check failed for {server.server}: {e}, type: {type(e).__name__}")
+            server.healthy = False
+
+
 
     async def shutdown(self):
         self.shutdown_event.set()
@@ -112,15 +116,39 @@ load_balancer = DynamicLoadBalancer()
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI):
+    # Instantiate an HTTP client that will be used throughout the lifespan of the app.
     app.state.http_client = httpx.AsyncClient()
-    app.state.load_balancer = load_balancer  # Use the global instance
-    health_task = asyncio.create_task(app.state.load_balancer.check_server_health(app.state.http_client))
-    scaling_task = asyncio.create_task(app.state.load_balancer.scale_workers())
-    yield
-    health_task.cancel()
-    scaling_task.cancel()
-    await app.state.load_balancer.shutdown()
-    await app.state.http_client.aclose()
+
+    # Assign the global load balancer instance to the app state for easy access.
+    app.state.load_balancer = load_balancer
+
+    # Start the health check task.
+    health_task = asyncio.create_task(load_balancer.perform_health_checks())
+
+    # Start the worker scaling task.
+    scaling_task = asyncio.create_task(load_balancer.scale_workers())
+
+    try:
+        # Yield control back to the FastAPI app. This is where the app actually starts serving requests.
+        yield
+    finally:
+        # When the app is stopping, cancel the background tasks.
+        health_task.cancel()
+        scaling_task.cancel()
+
+        # Wait for the background tasks to be cancelled. This ensures they have stopped before the app fully shuts down.
+        await asyncio.gather(health_task, scaling_task, return_exceptions=True)
+
+        # Shutdown any remaining async activities.
+        await load_balancer.shutdown()
+
+        # Close the HTTP client session.
+        await app.state.http_client.aclose()
+
+# Assign the lifespan context manager to the FastAPI instance.
+app = FastAPI(lifespan=app_lifespan)
+
+    
 
 app = FastAPI(lifespan=app_lifespan)
 
@@ -136,7 +164,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def register_worker(worker: Worker):
     app.state.load_balancer.register_server(worker.server)
     logging.info(f"Worker {worker.server} connected to load balancer.")
-    return {"message": f"Worker {worker.server} registered successfully."}    
+    return {"message": f"Worker {worker.server} registered successfully."}       
 
 @app.post("/report-load")
 async def report_load(report: LoadReport):

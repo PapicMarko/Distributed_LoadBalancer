@@ -1,0 +1,454 @@
+2024-01-03 14:42:20,353 - INFO - Worker localhost:8001 connected to load balancer.
+2024-01-03 14:42:41,032 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:41,032 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:41,032 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:41,033 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:42,990 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:42,991 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:42,992 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:42,992 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:42,993 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:42,993 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:42,995 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 14:42:42,995 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 14:42:42,996 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:44,126 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:44,128 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:42:44,128 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:42:44,128 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:44,129 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:44,129 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:44,130 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:44,132 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:45,258 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:45,258 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:45,259 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:42:45,259 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:42:45,259 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:45,260 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:45,261 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:45,261 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:45,262 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:45,262 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:45,263 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:46,066 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:46,067 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:46,402 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:46,403 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:46,403 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:42:46,403 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:42:46,675 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:46,675 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:46,676 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:46,676 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:46,676 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:46,677 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:47,455 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:47,455 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:47,746 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:42:47,746 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:42:48,009 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 14:42:48,009 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 14:42:48,011 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:42:48,011 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:42:48,013 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:48,013 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:48,014 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:48,014 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:49,065 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:49,065 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:49,065 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:49,330 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:49,331 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:49,332 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:49,332 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:49,333 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:49,333 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:49,333 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:42:49,333 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:42:49,334 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:50,282 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:50,282 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:50,288 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:50,441 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:50,441 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:50,442 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:50,442 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:50,443 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 14:42:50,443 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 14:42:50,444 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:50,445 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:50,446 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:51,708 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:51,708 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:51,970 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:51,970 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:52,844 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:52,844 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:52,845 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 14:42:52,845 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 14:42:54,159 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:54,961 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:54,965 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:54,966 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:54,967 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:54,967 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:54,968 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:42:54,968 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:42:54,969 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:54,969 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:55,252 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 14:42:55,252 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 14:42:55,253 - INFO - Received load report: {"server":"localhost:8001","load":8}
+2024-01-03 14:42:55,253 - INFO - Load updated for worker localhost:8001: 8 active requests
+2024-01-03 14:42:55,253 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 14:42:55,254 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 14:42:55,254 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 14:42:55,254 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 14:42:56,079 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 14:42:56,080 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 14:42:57,486 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:57,756 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 14:42:57,756 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 14:42:57,757 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 14:42:57,757 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 14:42:57,758 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:42:57,758 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:42:57,759 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:42:57,759 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:42:57,760 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:57,760 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:57,760 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:57,761 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:57,761 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 14:42:57,762 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 14:42:57,763 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:57,763 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:57,764 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:57,765 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:57,767 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:57,768 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:57,768 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:58,004 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:42:58,005 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:42:58,005 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:58,006 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:58,788 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:42:58,789 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:42:58,789 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 14:42:58,790 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 14:42:58,791 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:42:58,792 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:43:04,176 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:43:04,177 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:43:04,178 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:43:04,178 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:43:04,179 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:43:04,179 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:43:04,179 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:43:04,180 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:43:04,180 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 14:43:04,180 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 14:43:04,458 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 14:43:04,459 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 14:43:04,459 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 14:43:04,460 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 14:43:04,460 - INFO - Received load report: {"server":"localhost:8001","load":10}
+2024-01-03 14:43:04,460 - INFO - Load updated for worker localhost:8001: 10 active requests
+2024-01-03 14:43:04,461 - INFO - Received load report: {"server":"localhost:8001","load":8}
+2024-01-03 14:43:04,461 - INFO - Load updated for worker localhost:8001: 8 active requests
+2024-01-03 14:43:04,461 - INFO - Received load report: {"server":"localhost:8001","load":9}
+2024-01-03 14:43:04,461 - INFO - Load updated for worker localhost:8001: 9 active requests
+2024-01-03 14:43:05,515 - INFO - Received load report: {"server":"localhost:8001","load":9}
+2024-01-03 14:43:05,515 - INFO - Load updated for worker localhost:8001: 9 active requests
+2024-01-03 14:43:06,888 - INFO - Received load report: {"server":"localhost:8001","load":8}
+2024-01-03 14:43:06,889 - INFO - Load updated for worker localhost:8001: 8 active requests
+2024-01-03 14:43:06,890 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 14:43:06,890 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 14:43:06,892 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 14:43:06,892 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 14:43:06,893 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 14:43:06,893 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 14:43:07,115 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:43:07,115 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:43:07,116 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:43:07,116 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:43:07,117 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:43:07,117 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:43:07,117 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:43:07,118 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:43:07,118 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 14:43:07,118 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 14:43:12,551 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:43:12,551 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 14:43:15,251 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:43:15,251 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:43:15,252 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:43:15,252 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:43:15,253 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 14:43:15,253 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 14:43:15,254 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:43:15,254 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:43:15,254 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 14:43:15,255 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 14:43:15,255 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 14:43:15,255 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 14:43:15,524 - INFO - Received load report: {"server":"localhost:8001","load":8}
+2024-01-03 14:43:15,525 - INFO - Load updated for worker localhost:8001: 8 active requests
+2024-01-03 14:43:15,525 - INFO - Received load report: {"server":"localhost:8001","load":9}
+2024-01-03 14:43:15,526 - INFO - Load updated for worker localhost:8001: 9 active requests
+2024-01-03 14:43:15,526 - INFO - Received load report: {"server":"localhost:8001","load":10}
+2024-01-03 14:43:15,526 - INFO - Load updated for worker localhost:8001: 10 active requests
+2024-01-03 14:43:15,527 - INFO - Received load report: {"server":"localhost:8001","load":9}
+2024-01-03 14:43:15,527 - INFO - Load updated for worker localhost:8001: 9 active requests
+2024-01-03 14:43:16,846 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:43:16,847 - INFO - Received load report: {"server":"localhost:8001","load":8}
+2024-01-03 14:43:16,848 - INFO - Load updated for worker localhost:8001: 8 active requests
+2024-01-03 14:43:17,655 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 14:43:17,655 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 14:43:17,656 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 14:43:17,656 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 14:43:17,657 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 14:43:17,657 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 14:43:17,658 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 14:43:17,658 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 14:43:17,659 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 14:43:17,659 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 14:43:17,662 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:43:17,662 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 14:43:17,887 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 14:43:17,887 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 14:43:17,889 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 14:43:17,889 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 14:43:17,889 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 14:43:17,889 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:10:25,901 - INFO - Worker localhost:8001 connected to load balancer.
+2024-01-03 15:10:43,848 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:10:43,848 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:10:43,848 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:10:43,848 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:10:45,796 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:10:45,796 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:10:45,797 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 15:10:45,797 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 15:10:45,798 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:10:45,799 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:10:45,799 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:10:45,799 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:10:45,801 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:45,801 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:46,940 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:10:46,940 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:10:46,941 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:46,941 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:46,942 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:46,942 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:46,944 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:47,662 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:10:47,662 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:10:47,663 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:10:47,663 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:10:47,664 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:10:47,664 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:10:48,763 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:49,030 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:49,031 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:49,031 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:10:49,032 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:10:49,561 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:49,562 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:49,565 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:10:49,565 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:10:49,566 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:49,567 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:49,569 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 15:10:49,569 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 15:10:49,570 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:10:49,570 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:10:49,571 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:10:49,572 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:10:50,101 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:10:50,101 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:10:50,102 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:10:50,102 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:10:51,192 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:10:51,192 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:10:51,193 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:51,193 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:51,197 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:51,197 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:51,199 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:51,200 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:51,222 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:10:51,222 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:10:51,222 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:10:51,223 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:10:51,223 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 15:10:51,224 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 15:10:51,226 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:51,226 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:51,227 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:52,375 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:10:52,375 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:10:52,376 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:10:52,376 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:10:54,339 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:54,340 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:54,341 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:10:54,341 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:10:54,342 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:10:54,342 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:10:54,869 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:55,660 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:56,456 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 15:10:56,456 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 15:10:56,457 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:10:56,457 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:10:56,458 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:10:56,458 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:10:56,459 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:57,241 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:10:57,241 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:10:57,242 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 15:10:57,242 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 15:10:57,246 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:57,246 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:57,247 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:10:57,248 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:10:57,249 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:10:57,249 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:10:58,122 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:10:58,122 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:10:58,123 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:10:58,124 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:10:58,914 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:58,915 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:10:59,445 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:10:59,445 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:10:59,446 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:59,446 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:59,447 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:10:59,447 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:10:59,448 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:10:59,448 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:10:59,448 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:10:59,449 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:10:59,449 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:59,449 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:59,722 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:10:59,723 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:10:59,723 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:10:59,724 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:11:00,251 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:11:00,252 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:11:00,253 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:00,765 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:11:00,765 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:11:00,766 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 15:11:00,767 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 15:11:00,768 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:00,769 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:02,067 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:11:02,067 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:11:02,411 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:11:02,411 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:11:02,412 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:11:02,412 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:11:02,952 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:11:02,952 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:11:03,491 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:03,760 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:11:03,760 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:11:04,340 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 15:11:04,340 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 15:11:04,341 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:04,343 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:11:04,343 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:11:04,344 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:06,633 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:11:06,633 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:11:06,900 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:11:06,900 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:11:06,901 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:11:06,901 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:11:06,902 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:11:06,903 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:11:06,903 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:11:06,903 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:11:06,905 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 15:11:06,905 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 15:11:06,906 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:11:06,906 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:11:07,959 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:09,443 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:11:09,444 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:11:09,446 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:11:09,447 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:11:09,448 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 15:11:09,448 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 15:11:09,483 - INFO - Received load report: {"server":"localhost:8001","load":8}
+2024-01-03 15:11:09,484 - INFO - Load updated for worker localhost:8001: 8 active requests
+2024-01-03 15:11:09,992 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:11:09,993 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:11:09,993 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:11:09,993 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:11:09,994 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:11:09,994 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:11:09,995 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 15:11:09,995 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 15:11:09,995 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:11:09,995 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:11:10,523 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:11:10,523 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:11:10,524 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:11:10,524 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:11:10,526 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:10,791 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:11:10,791 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:11:10,792 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:11:10,792 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:11:10,794 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:10,795 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:11,034 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 15:11:11,034 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 15:11:11,036 - INFO - HTTP Request: GET http://localhost:8001/test "HTTP/1.1 200 OK"
+2024-01-03 15:11:17,146 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:11:17,146 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:11:17,147 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:11:17,148 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:11:17,148 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:11:17,149 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:11:17,149 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:11:17,150 - INFO - Load updated for worker localhost:8001: 4 active requests
+2024-01-03 15:11:17,150 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:11:17,150 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:11:17,432 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 15:11:17,433 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 15:11:17,433 - INFO - Received load report: {"server":"localhost:8001","load":8}
+2024-01-03 15:11:17,434 - INFO - Load updated for worker localhost:8001: 8 active requests
+2024-01-03 15:11:17,434 - INFO - Received load report: {"server":"localhost:8001","load":9}
+2024-01-03 15:11:17,434 - INFO - Load updated for worker localhost:8001: 9 active requests
+2024-01-03 15:11:17,435 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:11:17,435 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:11:17,436 - INFO - Received load report: {"server":"localhost:8001","load":10}
+2024-01-03 15:11:17,436 - INFO - Load updated for worker localhost:8001: 10 active requests
+2024-01-03 15:11:18,488 - INFO - Received load report: {"server":"localhost:8001","load":9}
+2024-01-03 15:11:18,488 - INFO - Load updated for worker localhost:8001: 9 active requests
+2024-01-03 15:11:19,825 - INFO - Received load report: {"server":"localhost:8001","load":7}
+2024-01-03 15:11:19,826 - INFO - Load updated for worker localhost:8001: 7 active requests
+2024-01-03 15:11:19,826 - INFO - Received load report: {"server":"localhost:8001","load":8}
+2024-01-03 15:11:19,827 - INFO - Load updated for worker localhost:8001: 8 active requests
+2024-01-03 15:11:19,827 - INFO - Received load report: {"server":"localhost:8001","load":6}
+2024-01-03 15:11:19,828 - INFO - Load updated for worker localhost:8001: 6 active requests
+2024-01-03 15:11:19,828 - INFO - Received load report: {"server":"localhost:8001","load":5}
+2024-01-03 15:11:19,828 - INFO - Load updated for worker localhost:8001: 5 active requests
+2024-01-03 15:11:20,086 - INFO - Received load report: {"server":"localhost:8001","load":0}
+2024-01-03 15:11:20,086 - INFO - Load updated for worker localhost:8001: 0 active requests
+2024-01-03 15:11:20,087 - INFO - Received load report: {"server":"localhost:8001","load":1}
+2024-01-03 15:11:20,087 - INFO - Load updated for worker localhost:8001: 1 active requests
+2024-01-03 15:11:20,087 - INFO - Received load report: {"server":"localhost:8001","load":3}
+2024-01-03 15:11:20,088 - INFO - Load updated for worker localhost:8001: 3 active requests
+2024-01-03 15:11:20,088 - INFO - Received load report: {"server":"localhost:8001","load":2}
+2024-01-03 15:11:20,088 - INFO - Load updated for worker localhost:8001: 2 active requests
+2024-01-03 15:11:20,089 - INFO - Received load report: {"server":"localhost:8001","load":4}
+2024-01-03 15:11:20,089 - INFO - Load updated for worker localhost:8001: 4 active requests
