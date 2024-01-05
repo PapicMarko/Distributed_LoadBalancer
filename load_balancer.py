@@ -26,6 +26,7 @@ class LoadReport(BaseModel):
     server: str
     load: int
 
+#START OF CLASS
 class DynamicLoadBalancer:
     def __init__(self, health_check_interval=HEALTH_CHECK_INTERVAL):
         self.servers = []
@@ -39,19 +40,18 @@ class DynamicLoadBalancer:
     def get_next_server(self):
         healthy_servers = [server for server in self.servers if server.healthy]
         if not healthy_servers:
+            logging.error("No healthy servers available.")
             raise ValueError("No healthy servers available.")
-        if not self.servers:
-            raise ValueError("No registered workers")
         self.current_worker_index = (self.current_worker_index + 1) % len(healthy_servers)
+        logging.info(f"Next server selected: {healthy_servers[self.current_worker_index].server}")
         return healthy_servers[self.current_worker_index]
-        return self.servers[self.current_worker_index]
 
     async def start_new_worker(self):
         new_worker_port = self.get_next_available_port()
         new_worker_address = f"localhost:{new_worker_port}"
         subprocess.Popen(["python", "worker.py", str(new_worker_port)])
         self.register_server(new_worker_address)
-        logging.info(f"New worker started at {new_worker_address}")
+        logging.info(f"New worker started and registered: {new_worker_address}")
 
     def get_next_available_port(self):
         existing_ports = [int(worker.server.split(':')[1]) for worker in self.servers]
@@ -71,6 +71,28 @@ class DynamicLoadBalancer:
             logging.info("Scaling up due to high load...")
             return True
         return False
+    
+    def should_scale_down(self):
+        total_requests = sum(worker.active_requests for worker in self.servers)
+        if total_requests < self.max_requests_per_worker * (len(self.servers) - 1):
+            logging.info("Scaling down due to low load...")
+            return True
+        return False
+
+    async def forward_request(path: str, request: Request):
+        worker = load_balancer.get_next_server()
+        url = f"http://{worker.server}" + request.url.path
+
+        async with httpx.AsyncClient() as client:
+            response = await client.request(
+                method=request.method,
+                url=url,
+                headers=request.headers,
+                data=await request.body()
+        )
+
+        return Response(content=response.content, status_code=response.status_code, headers=dict(response.headers))
+
 
     async def perform_health_checks(self):
         while not self.shutdown_event.is_set():
@@ -81,6 +103,7 @@ class DynamicLoadBalancer:
                 else:
                     logging.info(f"Health check for {server.server}: Unhealthy")
             await asyncio.sleep(self.health_check_interval)
+            logging.info(f"Performing health check for {server.server}")
 
     async def scale_workers(self):
         while not self.shutdown_event.is_set():
@@ -105,67 +128,53 @@ class DynamicLoadBalancer:
         except Exception as e:
             logging.error(f"Health check failed for {server.server}: {e}, type: {type(e).__name__}")
             server.healthy = False
-
-
-
     async def shutdown(self):
         self.shutdown_event.set()
         logging.info("Shutdown initiated for Load Balancer.")
+#END OF CLASS
+
 
 load_balancer = DynamicLoadBalancer()
 
+
+
 @asynccontextmanager
 async def app_lifespan(app: FastAPI):
-    # Instantiate an HTTP client that will be used throughout the lifespan of the app.
     app.state.http_client = httpx.AsyncClient()
-
-    # Assign the global load balancer instance to the app state for easy access.
     app.state.load_balancer = load_balancer
-
-    # Start the health check task.
     health_task = asyncio.create_task(load_balancer.perform_health_checks())
-
-    # Start the worker scaling task.
     scaling_task = asyncio.create_task(load_balancer.scale_workers())
-
     try:
-        # Yield control back to the FastAPI app. This is where the app actually starts serving requests.
         yield
     finally:
-        # When the app is stopping, cancel the background tasks.
         health_task.cancel()
         scaling_task.cancel()
-
-        # Wait for the background tasks to be cancelled. This ensures they have stopped before the app fully shuts down.
         await asyncio.gather(health_task, scaling_task, return_exceptions=True)
-
-        # Shutdown any remaining async activities.
         await load_balancer.shutdown()
-
-        # Close the HTTP client session.
         await app.state.http_client.aclose()
 
-# Assign the lifespan context manager to the FastAPI instance.
 app = FastAPI(lifespan=app_lifespan)
 
-    
-
-app = FastAPI(lifespan=app_lifespan)
-
-
+#EXCEPTION HANDLER
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logging.error(f"Validation error: {exc.body}")
     return PlainTextResponse(str(exc), status_code=422)
 
+#ROOT ENDPOINT
+@app.get("/")
+async def root():
+    return {"message": "This is the load balancer!"}
 
-
+#REGISTER WORKER
 @app.post("/register-worker")
 async def register_worker(worker: Worker):
     app.state.load_balancer.register_server(worker.server)
     logging.info(f"Worker {worker.server} connected to load balancer.")
     return {"message": f"Worker {worker.server} registered successfully."}       
 
+
+#REPORT LOAD
 @app.post("/report-load")
 async def report_load(report: LoadReport):
     logging.info(f"Received load report: {report.model_dump_json()}")
@@ -181,11 +190,7 @@ async def report_load(report: LoadReport):
     return {"message": "Load updated"}
 
 
-
-@app.get("/")
-async def root():
-    return {"message": "This is the load balancer!"}
-
+#LOAD BALANCER HEALTH
 @app.get("/load-balancer-health")
 def load_balancer_health():
     worker_statuses = []
@@ -203,6 +208,8 @@ def load_balancer_health():
     ])
     return Response(content=formatted_response, media_type="application/json")
 
+
+#NEXT SERVER
 @app.get("/next")
 def get_next_server():
     try:
@@ -211,6 +218,7 @@ def get_next_server():
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+#LIST WORKERS
 @app.get("/list-workers")
 def list_workers():
     registered_workers = [s.server for s in app.state.load_balancer.servers]
@@ -219,25 +227,10 @@ def list_workers():
 
 @app.route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
 
+#TEST ENDPOINT
 @app.route("/test", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
 async def test_endpoint(request: Request):
-    return await forward_request("test", request)
-
-async def forward_request(path: str, request: Request):
-    worker = load_balancer.get_next_server()
-    url = f"http://{worker.server}" + request.url.path
-
-    async with httpx.AsyncClient() as client:
-        response = await client.request(
-            method=request.method,
-            url=url,
-            headers=request.headers,
-            data=await request.body()
-        )
-
-    return Response(content=response.content, status_code=response.status_code, headers=dict(response.headers))
-
-
+    return await app.state.load_balancer.forward_request("test", request)
 
 if __name__ == "__main__":
     import uvicorn

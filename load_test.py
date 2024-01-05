@@ -6,17 +6,4 @@ class LoadTester(HttpUser):
     @task(5)
     def request_through_load_balancer(self):
         # Targeting the load balancer to test round-robin distribution
-        self.client.get("http://localhost:8000/test")
-
-    # Uncomment and modify these tasks if you want to target specific endpoints or workers directly
-    """
-    @task(1)
-    def request_specific_endpoint(self):
-        # Replace with specific endpoints as needed
-        self.client.get("http://localhost:8000/some-specific-endpoint")
-
-    @task(1)
-    def request_another_specific_endpoint(self):
-        # Replace with other specific endpoints as needed
-        self.client.get("http://localhost:8000/another-specific-endpoint")
-    """
+        self.client.get("http://localhost:8001/worker-health")

@@ -12,7 +12,7 @@ WORKER_PORT = sys.argv[1] if len(sys.argv) > 1 else "8001"
 WORKER_ADDRESS = f"localhost:{WORKER_PORT}"
 LOG_LEVEL = logging.INFO
 REPORT_TIMEOUT = 5.0  # Timeout in seconds for reporting load
-REPORT_INTERVAL = timedelta(seconds=5)  # Interval for reporting load, adjust as needed
+REPORT_INTERVAL = timedelta(seconds=10)  # Interval for reporting load, adjust as needed
 
 # Setting up basic logging
 logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -48,7 +48,7 @@ async def count_request(request: Request, call_next):
 
     async with worker_lock:
         active_requests -= 1
-        logging.info(f"Request completed. Active requests: {active_requests}")
+        # logging.info(f"Request completed. Active requests: {active_requests}")
 
     # Report load if the interval has elapsed
     if current_time - last_report_time > REPORT_INTERVAL:
