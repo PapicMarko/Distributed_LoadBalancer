@@ -9,10 +9,11 @@ import subprocess
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 import os
+import cProfile
 
 # Configurable Parameters
 HEALTH_CHECK_INTERVAL = 10  # seconds
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.WARNING
 
 # Setting up basic logging
 logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -79,7 +80,7 @@ class DynamicLoadBalancer:
             return True
         return False
 
-    async def forward_request(path: str, request: Request):
+    async def forward_request(self, path: str, request: Request):
         worker = load_balancer.get_next_server()
         url = f"http://{worker.server}" + request.url.path
 
@@ -230,7 +231,7 @@ def list_workers():
 #TEST ENDPOINT
 @app.route("/test", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
 async def test_endpoint(request: Request):
-    return await app.state.load_balancer.forward_request("test", request)
+    return await app.state.load_balancer.forward_request("/test", request)
 
 if __name__ == "__main__":
     import uvicorn
