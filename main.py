@@ -1,3 +1,4 @@
+"""
 from fastapi import FastAPI, HTTPException
 from load_balancer import DynamicLoadBalancer
 import httpx
@@ -38,5 +39,5 @@ def get_server_info():
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(app, host='127.0.0.1', port=8000)
-
+"""
 
