@@ -1,6 +1,5 @@
 import logging
 import asyncio
-import time
 from fastapi import FastAPI, HTTPException, Request, Response
 import httpx
 from contextlib import asynccontextmanager
@@ -8,8 +7,6 @@ from pydantic import BaseModel
 import subprocess
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
-import os
-import cProfile
 
 # Configurable Parameters
 HEALTH_CHECK_INTERVAL = 10  # seconds
@@ -138,7 +135,6 @@ class DynamicLoadBalancer:
             server.healthy = False
             server.active_requests = 0  # Assuming no active requests if an unexpected error occurs
             logging.error(f"Health check failed for {server.server}: {e}, type: {type(e).__name__}")
-
 
 
     async def shutdown(self):
