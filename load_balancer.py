@@ -45,7 +45,6 @@ class DynamicLoadBalancer:
             logging.error("No healthy servers available.")
             raise ValueError("No healthy servers available.")
         self.current_worker_index = (self.current_worker_index + 1) % len(healthy_servers)
-        logging.info(f"Next server selected: {healthy_servers[self.current_worker_index].server}")
         return healthy_servers[self.current_worker_index]
 
     async def start_new_worker(self):
