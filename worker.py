@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 LOAD_BALANCER_ADDRESS = "localhost:8000"
 WORKER_PORT = sys.argv[1] if len(sys.argv) > 1 else "8001"
 WORKER_ADDRESS = f"localhost:{WORKER_PORT}"
-LOG_LEVEL = logging.WARNING
+LOG_LEVEL = logging.INFO
 REPORT_TIMEOUT = 5.0  # Timeout in seconds for reporting load
 REPORT_INTERVAL = timedelta(seconds=10)  # Interval for reporting load, adjust as needed
 

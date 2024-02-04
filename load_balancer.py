@@ -13,7 +13,7 @@ import cProfile
 
 # Configurable Parameters
 HEALTH_CHECK_INTERVAL = 10  # seconds
-LOG_LEVEL = logging.WARNING
+LOG_LEVEL = logging.INFO
 
 # Setting up basic logging
 logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -35,6 +35,7 @@ class DynamicLoadBalancer:
         self.shutdown_event = asyncio.Event()
         self.max_requests_per_worker = 10
         self.max_workers = 5
+        self.client = httpx.AsyncClient()
         self.current_worker_index = -1  # For round-robin
         self.active_workers = {}  # Track active workers
 
@@ -98,13 +99,9 @@ class DynamicLoadBalancer:
     async def perform_health_checks(self):
         while not self.shutdown_event.is_set():
             for server in self.servers:
-                response = await self.check_server_health(server)
-                if response:
-                    logging.info(f"Health check for {server.server}: Healthy")
-                else:
-                    logging.info(f"Health check for {server.server}: Unhealthy")
+                logging.info(f"Performing health check for {server.server}")
+                await self.check_server_health(server)
             await asyncio.sleep(self.health_check_interval)
-            logging.info(f"Performing health check for {server.server}")
 
     async def scale_workers(self):
         while not self.shutdown_event.is_set():
@@ -114,22 +111,39 @@ class DynamicLoadBalancer:
 
     async def check_server_health(self, server):
         try:
-            async with httpx.AsyncClient() as client:
-                url = f"http://{server.server}/worker-health"
-                response = await client.get(url)
-                if response.status_code == 200:
+            url = f"http://{server.server}/worker-health"
+            response = await self.client.get(url)
+            if response.status_code == 200:
+                try:
                     data = response.json()
                     server.healthy = data["status"] == "OK"
                     server.active_requests = data.get("active_requests", 0)
                     health_status = 'Healthy' if server.healthy else 'Unhealthy'
                     logging.info(f"Health check for {server.server}: {server.active_requests} active requests - {health_status}")
-                else:
+                except ValueError as json_error:
+                    # This block will execute if the response is not valid JSON
                     server.healthy = False
-                    logging.info(f"Health check for {server.server}: Response status code {response.status_code} - Unhealthy")
-        except Exception as e:
-            logging.error(f"Health check failed for {server.server}: {e}, type: {type(e).__name__}")
+                    server.active_requests = 0  # Assuming no active requests if we can't get a valid response
+                    logging.error(f"Health check failed for {server.server}: Invalid JSON response. Error: {json_error}")
+            else:
+                server.healthy = False
+                server.active_requests = 0  # Assuming no active requests if response code is not 200
+                logging.info(f"Health check for {server.server}: Response status code {response.status_code} - Unhealthy")
+        except httpx.RequestError as request_error:
+            # This block will execute if there's a request issue, such as a network problem
             server.healthy = False
+            server.active_requests = 0  # Assuming no active requests if there's a network error
+            logging.error(f"Health check network error for {server.server}: {request_error}")
+        except Exception as e:
+            # This block will execute for any other Exception not handled above
+            server.healthy = False
+            server.active_requests = 0  # Assuming no active requests if an unexpected error occurs
+            logging.error(f"Health check failed for {server.server}: {e}, type: {type(e).__name__}")
+
+
+
     async def shutdown(self):
+        await self.client.aclose()
         self.shutdown_event.set()
         logging.info("Shutdown initiated for Load Balancer.")
 #END OF CLASS
@@ -152,7 +166,6 @@ async def app_lifespan(app: FastAPI):
         scaling_task.cancel()
         await asyncio.gather(health_task, scaling_task, return_exceptions=True)
         await load_balancer.shutdown()
-        await app.state.http_client.aclose()
 
 app = FastAPI(lifespan=app_lifespan)
 
