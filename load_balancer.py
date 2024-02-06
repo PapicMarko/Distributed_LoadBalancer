@@ -31,7 +31,7 @@ class DynamicLoadBalancer:
         self.servers = []
         self.health_check_interval = health_check_interval
         self.shutdown_event = asyncio.Event()
-        self.max_requests_per_worker = 10
+        self.max_requests_per_worker = 5
         self.max_workers = 5
         self.current_worker_index = -1  # For round-robin
         self.active_workers = {}  # Track active workers
@@ -106,10 +106,27 @@ class DynamicLoadBalancer:
             await asyncio.sleep(self.health_check_interval)
 
     async def scale_workers(self):
+
+        active_requests_history = {worker.server: [] for worker in self.servers}
+
         while not self.shutdown_event.is_set():
             if self.should_scale_up():
                 await self.start_new_worker()
             await asyncio.sleep(self.health_check_interval)
+
+        for worker in self.servers:
+            active_requests_history[worker.server].append(worker.active_requests)
+
+            if len(active_requests_history[worker.server]) > 5:
+                active_requests_history[worker.server].pop(0)
+
+            if len(self.servers) > 1 and all(active_req < 2 for active_req in active_requests_history[worker.server]):
+                self.remove_server(worker.server)
+                active_requests_history.pop(worker.server, None)
+                logging.info(f"Worker {worker.server} scaled down and removed due to low load")
+                break
+
+        await asyncio.sleep(self.health_check_interval)
 
     async def check_server_health(self, server):
         try:
