@@ -142,8 +142,11 @@ class DynamicLoadBalancer:
             server.healthy = False
             server.active_requests = 0  # Assuming no active requests if an unexpected error occurs
             logging.error(f"Health check failed for {server.server}: {e}, type: {type(e).__name__}")
-#END OF CLASS
+#CLASS END
             
+
+
+#FASTAPI APP           
 app = FastAPI()
 
 load_balancer = DynamicLoadBalancer(app = app)
