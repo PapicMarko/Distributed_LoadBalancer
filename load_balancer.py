@@ -200,7 +200,7 @@ async def report_load(report: LoadReport):
         logging.warning(f"Worker {report.server} not found in registered servers")
     return {"message": "Load updated"}
 
-
+#LOAD BALANCER HEALTH
 @app.get("/load-balancer-health")
 def load_balancer_health():
     worker_statuses = []
@@ -219,7 +219,7 @@ def load_balancer_health():
     return Response(content=formatted_response, media_type="application/json")
 
 
-#NEXT SERVER
+#NEXT SERVER - GETS THE NEXT WORKING SERVER
 @app.get("/next")
 def get_next_server():
     try:
@@ -228,14 +228,14 @@ def get_next_server():
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-#LIST WORKERS
+#LIST WORKERS - LISTS AVALIABLE WORKERS
 @app.get("/list-workers")
 def list_workers():
     registered_workers = [s.server for s in app.state.load_balancer.servers]
     return {"registered_workers": registered_workers}
 
 
-#Test endpoint
+#TEST ENDPOINT - FOR TESTING PURPOSES
 @app.route("/test", methods=["GET", "POST"])
 async def test_endpoint(request: Request):
     return await app.state.load_balancer.forward_request(request.url.path, request)
