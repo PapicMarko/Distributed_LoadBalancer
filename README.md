@@ -35,7 +35,7 @@ pip install -r requirements.txt
 
 1. Run the load balancer using the terminal window 
  ```bash
-    python load_balancer.py:8000
+python load_balancer.py:8000
  ```
 OR Run it by running script
 
@@ -47,7 +47,7 @@ python worker.py 8001
 
 3. Run "localhost:8000/docs" for overview, or run locust for stress testing
 ```bash
-     locust -f load_test.py  
+locust -f load_test.py  
 ```
 !IMPORTANT! - if locust is not working make sure it is added to your path!
 
