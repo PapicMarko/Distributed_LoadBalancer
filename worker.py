@@ -105,6 +105,10 @@ def worker_info():
 def test_endpoint():
     return {"message": "Test endpoint in worker reached successfully."}
 
+@app.post("/test")
+def test_endpoint_post():
+    return {"message": "Test endpoint in worker reached successfully."}
+
 @app.post("/shutdown")
 async def shutdown(request: Request):
     #Endpoint to shutdown the worker
