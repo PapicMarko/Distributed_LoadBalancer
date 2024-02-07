@@ -56,12 +56,31 @@ class DynamicLoadBalancer:
         return max(existing_ports) + 1 if existing_ports else 8001
 
     def register_server(self, server: str):
-        if server in [worker.server for worker in self.servers]:
-            return  # Skip registration if already registered
-        self.servers.append(Worker(server=server, active_requests=0))
+        existing_worker = next((worker for worker in self.servers if worker.server == server), None)
 
-    def remove_server(self, server: str):
-        self.servers = [s for s in self.servers if s.server != server]
+        if existing_worker:
+            existing_worker.healthy = True
+            existing_worker.active_requests = 0
+            logging.info(f"Updated registration for exisiting server: {server}")
+        else:
+            self.servers.append(Worker(server=server, active_requests=0))
+            logging.info(f"New server registered: {server}")
+
+
+
+    async def remove_server(self, server: str):
+        #Sending a shutdown request before removing the server
+        shutdown_url = f"http://{server}/shutdown"
+        async with httpx.AsyncClient() as client:
+            try:
+                await client.post(shutdown_url)
+                logging.info(f"Shutdown request sent to worker {server}")
+            except Exception as exc:
+                logging.error(f"Failed to send shutdown request to worker {server}: {exc}")
+                              
+        self.servers = [worker for worker in self.servers if worker.server != server]
+
+    
 
     def should_scale_up(self):
         total_requests = sum(worker.active_requests for worker in self.servers)
