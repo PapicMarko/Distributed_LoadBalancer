@@ -21,28 +21,36 @@ A load balancer made for my college course Distributed Systems and for my use to
 ##Installation
 
 1. Clone the repository
-```bash
-   git clone https://github.com/PapicMarko/Distributed_LoadBalancer.git
-
+ ```bash
+git clone https://github.com/PapicMarko/Distributed_LoadBalancer.git
+ ```
 
 2. Install dependencies 
+ ```bash
 pip install -r requirements.txt
+ ```
 
 
 ##Usage
 
 1. Run the load balancer using the terminal window 
+ ```bash
     python load_balancer.py:8000
+ ```
     "OR"
    Run it by running script
 
 2. Run a worker service
-    python worker.py:port (for example: python worker.py 8001)
-
+python worker.py:port for example: 
+```bash 
+python worker.py 8001 
+```
 
 3. Run "localhost:8000/docs" for overview, or run locust for stress testing
+```bash
      locust -f load_test.py  
-     !IMPORTANT! - if locust is not working make sure it is added to your path!
+```
+!IMPORTANT! - if locust is not working make sure it is added to your path!
 
 4. Use ThunderboltClient or any other service for quick usage.
 
