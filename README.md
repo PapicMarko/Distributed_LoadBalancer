@@ -37,8 +37,7 @@ pip install -r requirements.txt
  ```bash
     python load_balancer.py:8000
  ```
-    "OR"
-   Run it by running script
+OR Run it by running script
 
 2. Run a worker service
 python worker.py:port for example: 
