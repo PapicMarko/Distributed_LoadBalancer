@@ -1,0 +1,11 @@
+{
+    "load_balancer_address": "127.0.0.1:8000",
+    "load_balancer_host": "127.0.0.1", 
+    "load_balancer_port": 8000, 
+    "worker_host":"127.0.0.1",
+    "worker_port": "8001",
+    "health_check_interval": 10,
+    "log_level": "INFO",
+    "report_timeout": 5.0,
+    "report_interval": 10.0
+  }

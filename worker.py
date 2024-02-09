@@ -5,16 +5,30 @@ import httpx
 import sys
 import asyncio
 from datetime import datetime, timedelta
+import json
 
-# Configuration Parameters
-LOAD_BALANCER_ADDRESS = "localhost:8000"
-WORKER_PORT = sys.argv[1] if len(sys.argv) > 1 else "8001"
-WORKER_ADDRESS = f"localhost:{WORKER_PORT}"
-LOG_LEVEL = logging.INFO
-REPORT_TIMEOUT = 5.0  # Timeout in seconds for reporting load
-REPORT_INTERVAL = timedelta(seconds=10)  # Interval for reporting load, adjust as needed
+with open("config.json") as config_file:
+    config = json.load(config_file)
 
-# Setting up basic logging
+LOAD_BALANCER_ADDRESS = config["load_balancer_address"]
+WORKER_HOST = config["worker_host"]
+WORKER_PORT = sys.argv[1] if len(sys.argv) > 1 else config["worker_port"]
+log_level_config = config["log_level"]
+REPORT_TIMEOUT = config["report_timeout"]
+REPORT_INTERVAL = timedelta(seconds=config["report_interval"])
+
+# Convert log_level string from config to actual logging level
+log_level_mapping = {
+    "DEBUG": logging.DEBUG,
+    "INFO": logging.INFO,
+    "WARNING": logging.WARNING,
+    "ERROR": logging.ERROR,
+    "CRITICAL": logging.CRITICAL
+    }
+
+LOG_LEVEL = log_level_mapping.get(log_level_config.upper(), logging.INFO)
+
+# Setting up basic logging with the configured level
 logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = FastAPI()
@@ -29,9 +43,10 @@ async def report_current_load():
 
     try:
         async with httpx.AsyncClient(timeout=REPORT_TIMEOUT) as client:
+            worker_address = f"{WORKER_HOST}:{WORKER_PORT}"
             await client.post(
                 f"http://{LOAD_BALANCER_ADDRESS}/report-load",
-                json={"server": WORKER_ADDRESS, "load": current_load},
+                json={"server": worker_address, "load": current_load}
             )
     except Exception as e:
         logging.error(f"Error reporting load to load balancer: {e}")
@@ -41,7 +56,7 @@ async def register_with_load_balancer():
     global is_registered_with_load_balancer
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.post(f"http://{LOAD_BALANCER_ADDRESS}/register-worker", json={"server": WORKER_ADDRESS})
+            response = await client.post(f"http://{LOAD_BALANCER_ADDRESS}/register-worker", json={"server": f"{WORKER_HOST}:{WORKER_PORT}"})
             if response.status_code == 200:
                 logging.info(f"Successfully registered with load balancer at {LOAD_BALANCER_ADDRESS}")
                 is_registered_with_load_balancer = True  # Set flag to True after successful registration
@@ -98,7 +113,7 @@ def health_check():
 
 @app.get("/")
 def worker_info():
-    logging.info(f"This is the worker {WORKER_ADDRESS}")
+    logging.info(f"This is the worker {WORKER_HOST}")
     return {"status": "OK", "active_requests": active_requests}
 
 @app.get("/test")
@@ -126,4 +141,4 @@ async def startup_event():
 app.add_event_handler("startup", startup_event)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=int(WORKER_PORT))
+    uvicorn.run(app, host=WORKER_HOST, port=int(WORKER_PORT))

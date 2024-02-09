@@ -7,12 +7,29 @@ from pydantic import BaseModel
 import subprocess
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
+import json
 
-# Configurable Parameters
-HEALTH_CHECK_INTERVAL = 10  # seconds
-LOG_LEVEL = logging.INFO
 
-# Setting up basic logging
+with open("config.json") as config_file:
+    config = json.load(config_file)
+
+#Configurable parameters from config.json
+LOAD_BALANCER_HOST = config["load_balancer_host"]
+LOAD_BALANCER_PORT = config["load_balancer_port"]
+HEALTH_CHECK_INTERVAL = config["health_check_interval"]
+LOG_LEVEL = config["log_level"]
+
+# Convert log_level string from config to actual logging level
+log_level_mapping = {
+    "DEBUG": logging.DEBUG,
+    "INFO": logging.INFO,
+    "WARNING": logging.WARNING,
+    "ERROR": logging.ERROR,
+    "CRITICAL": logging.CRITICAL
+}
+LOG_LEVEL = log_level_mapping.get(LOG_LEVEL.upper(), logging.INFO)
+
+# Setting up basic logging with the configured level
 logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Worker(BaseModel):
@@ -281,4 +298,4 @@ async def test_endpoint(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host=LOAD_BALANCER_HOST, port=LOAD_BALANCER_PORT)
