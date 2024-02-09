@@ -316,6 +316,3 @@ async def test_endpoint(request: Request):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host=LOAD_BALANCER_HOST, port=LOAD_BALANCER_PORT)
-
-
-print("Hello", " ", "World")
