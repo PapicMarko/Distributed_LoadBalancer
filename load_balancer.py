@@ -8,8 +8,10 @@ import subprocess
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 import json
+from collections import deque
+from datetime import datetime, timedelta
 
-
+#Loading the configuration from config.json
 with open("config.json") as config_file:
     config = json.load(config_file)
 
@@ -54,6 +56,9 @@ class DynamicLoadBalancer:
         self.max_workers = 5
         self.current_worker_index = -1  # For round-robin
         self.active_workers = {}  # Track active workers
+        self.worker_restart_history = deque(maxlen=10) # Keep last 10 restart times
+        self.restart_threshold = timedelta(minutes=5)  # Time window for restart limit
+        self.max_restarts_in_threshold = 3 # Max restarts allowed in the above time window
 
     def get_next_server(self):
         healthy_servers = [server for server in self.servers if server.healthy]
@@ -64,13 +69,24 @@ class DynamicLoadBalancer:
         return healthy_servers[self.current_worker_index]
 
     async def start_new_worker(self):
-        exisiting_ports = [int(worker.server.split(":")[1]) for worker in self.servers]
-        new_worker_port = max(exisiting_ports) + 1 if exisiting_ports else 8001
+        # Check if we have exceeded the restart threshold
+        now = datetime.now()
+        restarts_in_threshold = sum(1 for t in self.worker_restart_history if now - t < self.restart_threshold)
+        if restarts_in_threshold >= self.max_restarts_in_threshold:
+            logging.error(f"Worker restart limit reached. Not starting new worker.")
+            return # Do not start new worker if restart limit reached
+        
+        existing_ports = [int(worker.server.split(":")[1]) for worker in self.servers]
+        new_worker_port = max(existing_ports) + 1 if existing_ports else 8001
         new_worker_address = f"{WORKER_HOST}:{new_worker_port}"
-        subprocess.Popen(["python", "worker.py", str(new_worker_port)])
+
+        #Starting the worker and according terminal
+        subprocess.Popen(f'start cmd /k python worker.py {new_worker_port}', shell=True)
         await asyncio.sleep(1)  # Wait for the worker to start
         self.register_server(new_worker_address)
         logging.info(f"New worker started and registered: {new_worker_address}")
+
+        self.worker_restart_history.append(now)
 
     def get_next_available_port(self):
         existing_ports = [int(worker.server.split(':')[1]) for worker in self.servers]
@@ -111,8 +127,8 @@ class DynamicLoadBalancer:
         return False
     
     def should_scale_down(self):
-        total_requests = sum(worker.active_requests for worker in self.servers)
-        if total_requests < self.max_requests_per_worker * (len(self.servers) - 1):
+        total_requests = sum(worker.active_requests for worker in self.servers if worker.healthy)
+        if len(self.servers) > 1 and total_requests < self.max_requests_per_worker * (len(self.servers) - 1):
             logging.info("Scaling down due to low load...")
             return True
         return False
@@ -300,3 +316,6 @@ async def test_endpoint(request: Request):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host=LOAD_BALANCER_HOST, port=LOAD_BALANCER_PORT)
+
+
+print("Hello", " ", "World")

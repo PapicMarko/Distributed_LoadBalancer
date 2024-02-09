@@ -135,8 +135,8 @@ async def shutdown(request: Request):
 async def startup_event():
     await register_with_load_balancer()  # Attempt initial registration with the load balancer
 
-    if not is_registered_with_load_balancer:
-        asyncio.create_task(check_load_balancer_alive())
+    # Always start the task to check load balancer health
+    asyncio.create_task(check_load_balancer_alive())
 
 app.add_event_handler("startup", startup_event)
 
