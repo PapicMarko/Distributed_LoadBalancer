@@ -77,7 +77,7 @@ class DynamicLoadBalancer:
             return # Do not start new worker if restart limit reached
         
         existing_ports = [int(worker.server.split(":")[1]) for worker in self.servers]
-        new_worker_port = max(existing_ports) + 1 if existing_ports else 8001
+        new_worker_port = max(existing_ports) + 1 if existing_ports else 8002
         new_worker_address = f"{WORKER_HOST}:{new_worker_port}"
 
         #Starting the worker and according terminal
