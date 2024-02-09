@@ -16,6 +16,8 @@ with open("config.json") as config_file:
 #Configurable parameters from config.json
 LOAD_BALANCER_HOST = config["load_balancer_host"]
 LOAD_BALANCER_PORT = config["load_balancer_port"]
+WORKER_HOST = config["worker_host"]
+WORKER_PORT = config["worker_port"]
 HEALTH_CHECK_INTERVAL = config["health_check_interval"]
 LOG_LEVEL = config["log_level"]
 
@@ -62,9 +64,11 @@ class DynamicLoadBalancer:
         return healthy_servers[self.current_worker_index]
 
     async def start_new_worker(self):
-        new_worker_port = self.get_next_available_port()
-        new_worker_address = f"localhost:{new_worker_port}"
+        exisiting_ports = [int(worker.server.split(":")[1]) for worker in self.servers]
+        new_worker_port = max(exisiting_ports) + 1 if exisiting_ports else 8001
+        new_worker_address = f"{WORKER_HOST}:{new_worker_port}"
         subprocess.Popen(["python", "worker.py", str(new_worker_port)])
+        await asyncio.sleep(1)  # Wait for the worker to start
         self.register_server(new_worker_address)
         logging.info(f"New worker started and registered: {new_worker_address}")
 
@@ -177,24 +181,21 @@ class DynamicLoadBalancer:
                     health_status = 'Healthy' if server.healthy else 'Unhealthy'
                     logging.info(f"Health check for {server.server}: {server.active_requests} active requests - {health_status}")
                 except ValueError as json_error:
-                    # This block will execute if the response is not valid JSON
-                    server.healthy = False
-                    server.active_requests = 0  # Assuming no active requests if we can't get a valid response
-                    logging.error(f"Health check failed for {server.server}: Invalid JSON response. Error: {json_error}")
+                # This block will execute if the response is not valid JSON
+                    raise ValueError(f"Invalid JSON response: {json_error}")
             else:
-                server.healthy = False
-                server.active_requests = 0  # Assuming no active requests if response code is not 200
-                logging.info(f"Health check for {server.server}: Response status code {response.status_code} - Unhealthy")
-        except httpx.RequestError as request_error:
-            # This block will execute if there's a request issue, such as a network problem
+                raise Exception(f"Health check failed with status code {response.status_code}")
+        except (httpx.RequestError, ValueError, Exception) as e:
             server.healthy = False
-            server.active_requests = 0  # Assuming no active requests if there's a network error
-            logging.error(f"Health check network error for {server.server}: {request_error}")
-        except Exception as e:
-            # This block will execute for any other Exception not handled above
-            server.healthy = False
-            server.active_requests = 0  # Assuming no active requests if an unexpected error occurs
-            logging.error(f"Health check failed for {server.server}: {e}, type: {type(e).__name__}")
+            server.active_requests = 0  # Assuming no active requests if there's an error
+            logging.error(f"Health check failed for {server.server}: {e}")
+
+            # Remove the unhealthy server
+            self.servers.remove(server)
+            logging.info(f"Removed unhealthy worker: {server.server}")
+
+            # Start a new worker
+            await self.start_new_worker()
 #CLASS END
             
 
