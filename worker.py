@@ -1,6 +1,6 @@
 import logging
 import uvicorn
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 import httpx
 import sys
 import asyncio
@@ -13,7 +13,7 @@ with open("config.json") as config_file:
 LOAD_BALANCER_ADDRESS = config["load_balancer_address"]
 WORKER_HOST = config["worker_host"]
 WORKER_PORT = sys.argv[1] if len(sys.argv) > 1 else config["worker_port"]
-log_level_config = config["log_level"]
+LOG_LEVEL = config["log_level"]
 REPORT_TIMEOUT = config["report_timeout"]
 REPORT_INTERVAL = timedelta(seconds=config["report_interval"])
 
@@ -26,7 +26,7 @@ log_level_mapping = {
     "CRITICAL": logging.CRITICAL
     }
 
-LOG_LEVEL = log_level_mapping.get(log_level_config.upper(), logging.INFO)
+LOG_LEVEL = log_level_mapping.get(LOG_LEVEL.upper(), logging.INFO)
 
 # Setting up basic logging with the configured level
 logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(message)s')
